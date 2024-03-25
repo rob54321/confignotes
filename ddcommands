@@ -1,0 +1,55 @@
+# commands to learn how to use dd.
+# fdisk sector counts start at 0.
+# this affects seek, skip and count.
+
+
+# a boot image, partition 1 and 2 are read in separately
+# then concatenated. The whole image is also read in with a single
+# command. the two ouputs are compared and must be equal.
+
+# the disk is as follows:
+# sector counts start from 0
+
+Disk /dev/sdb: 238.5 GiB, 256060514304 bytes, 500118192 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 4096 bytes
+I/O size (minimum/optimal): 4096 bytes / 33553920 bytes
+Disklabel type: dos
+Disk identifier: 0x000bf4b9
+
+Device     Boot    Start       End   Sectors  Size Id Type
+/dev/sdb1           2048  19996671  19994624  9.5G 83 Linux
+/dev/sdb2       19996672  22093823   2097152    1G 83 Linux
+/dev/sdb3       22093824 500118191 478024368  228G  5 Extended
+/dev/sdb5       22097920 500118191 478020272  228G 83 Linux
+
+################################################################################
+
+to use a single dd command to read whole disk up to end of partition 2:
+
+dd if=/dev/sdb of=disk.img bs=4M iflag=count_bytes,fullblock count=22093824b 
+status=progress
+
+NOTE: because sector counts start at 0: 220938424 sectors must be read not 
+220938423.
+
+to read the individual sectors:
+dd if=/dev/sdb of=boot.img iflag=count_bytes count=2048b
+  (because sectors from 0 to 2047)
+dd if=/dev/sdb1 of=p1.img bs=4M status=progress
+dd if=/dev/sdb2 of=p2.img bs=4M status=progress
+
+# to combine the 3 files into one
+dd if=boot.img of=disk12.img
+dd if=p1.img of=disk12.img oflag=append bs=4M status=progress conv=notrunc
+dd if=p2.img of=disk12.img oflag=append bs=4M status=progress conv=notrunc
+
+# alternatively p1.img and p2.img can be appended
+dd if=p1.img of=disk12.img oflag=seek_bytes seek=2048b conv=notrunc bs=4M 
+status=progress
+dd if=p2.img of=disk12.img oflag=seek_bytes seek=19996672b conv=notrunc bs=4M 
+status=progress.
+
+NOTE: seek = end + 1 = start of next partition.
+seek = start of next partition.
+

@@ -1,0 +1,32 @@
+# Intstructions on setting up dual boot for linux & windows with uefi boot
+
+Set windows 10 to boot in uefi.
+use mbr2gpt in windows to to convert to a gpt partition.
+mbr2gpt /? gives help
+It may be necessary to delete the linux partitions first.
+mbr2gpt /validate will tell if it can be converted.
+The bios must be set to boot uefi
+run msinfo32 to see status
+Windows key + R gives command line
+
+For ubuntu linux
+make sure the live cd used to install ubuntu has booted into uefi
+in live cd linux as root to check [ -d /sys/firmware/efi ] && "echo Boot in UEFI" || "echo Boot in Legacy"
+The directory /sys/firmware/efi must exist in linux if booted in uefi mode.
+Install linux and put the boot loader into the boot partition of the system disk /dev/nvme0n1p1
+Install in normal way
+
+To fix the boot so grub appears.
+In windows open a administrator console
+
+
+bcdedit /set {bootmgr} path \EFI\ubuntu\grubx64.efi
+
+to go back to windows bootmanager
+
+bcdedit /set \EFI\Microsoft\Boot\bootmgr.efi or bootmgfw.efi
+
+bootrec can be used to fix the mbr.
+
+
+

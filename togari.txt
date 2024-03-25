@@ -1,0 +1,60 @@
+Notes on sony xperia z ultra c6833
+
+Install flashtool-drivers 
+Install flashtool for xperia
+
+use flashtool to unlock, lock bootloader
+or fastboot -i 0x0fce oem unlock CBA30292C467258A
+
+flashtool can lock the bootloader again.
+
+#####################################################
+to install the stock rom.
+cp stock roms to /root/.flashTool/firmwares/
+
+run flashtool
+select lighting icon
+select flashmode (not fastboot)
+put phone in flash mode. Power off the press volume down and plug in usb to computer. Keep holding volume down for a while.
+
+select file in flashtool after pressing Flash button.
+Do not select any other options. Beware of Data erase
+####################################################
+
+####################################################
+to install stock kernel after messing up the stock kernel.
+
+run FlashTool.
+Connect phone in flashmode. Power off. Hold volume down, plugin phone into usb. No leds come on.
+select lightning icon.
+select flashmode
+exclude all except bootbundle, kernel, fota.
+uncheck erase data, appslog.
+Restores stock kernel with the preivous dual recovery.
+#####################################################
+
+
+#####################################################
+To root the sony, (works with stock 4.4.4)
+ use easyroottool.
+ switch the phone on so adb will work.
+ Easyroottool uses trowel.apk.
+ cd /home/robert/dualrec/lockeddualrecovery
+ ./install.sh
+ follow prompts
+#####################################################
+ 
+ To install cyanogenmod:
+ fastboot erase boot
+ fastboot erase recovery    # must be done first
+ unzip rom and do fastboot flash boot boot.img
+ this installs cyanogenmod recovery (cm12.1) or cwm (cm10 or cm11)
+ Boot into recovery with power on volume up.
+ Use recovery to install rom zip file which must be on the sdcard.
+ 
+ To install dual recovery.
+ unzip dualrecovery file
+connect phone so adb mode will work.
+run install.sh
+to boot twrp, turn on then volume up when pink led is on.
+

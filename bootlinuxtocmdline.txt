@@ -1,0 +1,24 @@
+# To make Ubuntu boot into the command line instead of X windows
+
+
+
+To boot Ubuntu 16.04 Desktop without X one time, 
+add 
+
+systemd.unit=multi-user.target
+
+to the linux command line in GRUB.
+also add it to /etc/default/grub cmdline boot parameters
+
+To make this the default, from the command line as root
+
+systemctl set-default multi-user.target
+
+To return to default booting into X, from the command line
+
+systemctl set-default graphical.target
+
+To see the current default target,
+
+systemctl get-default
+

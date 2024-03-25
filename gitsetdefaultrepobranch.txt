@@ -1,0 +1,20 @@
+how to set the default branch in a git local remote repository.
+
+cd to git repository
+git symbolic-ref HEAD refs/heads/defaultbranchname
+
+to delete branches on remote and local
+
+git branch -d branch_name   -- to delete local branch
+git branch -r -d origin/branch_name -- to delete remote branch
+
+git push remote_name -d branch_name
+or git push remote_name :branch_name
+
+git branch -d branchname
+
+git remote -v prune origin -- to remove remote branch
+
+
+to get the current default branch in a local remote repository
+git ls-remote --symref origin HEAD

@@ -1,0 +1,7 @@
+When a live system is made
+the user robert has id 999
+
+to set it to 1000
+usermod -u 1000 robert
+groupmod -g 1000 robert
+

@@ -1,0 +1,252 @@
+Requirements
+
+    A fresh Ubuntu 16.04 Vultr instance.
+    A non-root user with sudo privileges.
+    A static IP address 192.168.0.190 is configured on the server instance.
+    A static IP address 192.168.0.191 is configured on the client machine.
+
+Step 1 : Install MariaDB
+
+By default, the latest version of MariaDB is not available in the Ubuntu 16.04 repository; so you will need to add the MariaDB repository to your system.
+
+First, download the key with the following command:
+
+sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
+
+Next, add the MariaDB repository to the /etc/apt/sources.list file:
+
+sudo echo "deb [arch=amd64,i386,ppc64el] http://ftp.utexas.edu/mariadb/repo/10.1/ubuntu xenial main" >> /etc/apt/sources.list
+
+Update the apt index with the following command:
+
+sudo apt-get update -y
+
+Once apt index has been updated, install the MariaDB server with the following command:
+
+sudo apt-get install mariadb-server -y
+
+Start the MariaDB server and enable it to start on boot time:
+
+sudo systemctl start mysql
+sudo systemctl enable mysql
+
+Next, you will need to run mysql_secure_installation script to secure MariaDB installation. This script allows you to set the root password, remove anonymous users, disallow remote root login and remove the test database:
+
+sudo mysql_secure_installation
+
+Step 2 : Create an SSL Certificate and a Private Key for the Server
+
+First, create a directory to store all the key and certificate files.
+
+sudo mkdir /etc/mysql/newcerts
+
+Next, change the directory to /etc/mysql/newcerts and create the CA certificate and private key with the following command:
+
+sudo cd /etc/mysql/newcrts
+sudo openssl genrsa 2048 > ca-key.pem
+sudo openssl req -new -x509 -nodes -days 365000 -key ca-key.pem -out ca-cert.pem
+
+Answer all of the questions as shown below:
+
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:IN
+State or Province Name (full name) [Some-State]:GUJ
+Locality Name (eg, city) []:JND
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:ENJ
+Organizational Unit Name (eg, section) []:SYSTEM
+Common Name (e.g. server FQDN or YOUR name) []:HITESH
+Email Address []:example@example.com
+
+Next, create a private key for the server with the following command:
+
+sudo openssl req -newkey rsa:2048 -days 365 -nodes -keyout server-key.pem -out server-req.pem
+
+Answer all the questions as you did in the previous command.
+
+Next, export the server's private key to an RSA-type key with the following command:
+
+sudo sudo openssl rsa -in server-key.pem -out server-key.pem
+
+Finally, generate a server certificate using the CA certificate as follows:
+
+sudo openssl x509 -req -in server-req.pem -days 365 -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
+
+You can now see all the certificates and key with the following command:
+
+ls
+
+You should see the following output:
+
+ca-cert.pem  ca-key.pem  server-cert.pem  server-key.pem  server-req.pem
+
+Once you are done, you can proceed to the next step.
+Step 3 : Configure MariaDB Server to use SSL
+
+You should have all the certificates and a private key; and now you will need to configure MariaDB to use the key and certificates. You can do this by editing the /etc/mysql/mariadb.conf.d/50-server.cnf file:
+
+sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
+
+Add the following lines under the [mysqld] section:
+
+ssl-ca=/etc/mysql/newcerts/ca-cert.pem
+ssl-cert=/etc/mysql/newcerts/server-cert.pem
+ssl-key=/etc/mysql/newcerts/server-key.pem
+
+##Change this value to connect the MariaDB server from another host.
+bind-address = *
+
+Save the file, then restart the MariaDB service to apply these changes:
+
+sudo systemctl restart mysql
+
+Now, you can check whether the SSL configuration is working or not with the following query:
+
+mysql -u root -p
+MariaDB [(none)]> SHOW VARIABLES LIKE '%ssl%';
+
+If the configuration was successful, you should see the following output:
+
++---------------+--------------------------------+
+| Variable_name | Value                          |
++---------------+--------------------------------+
+| have_openssl  | YES                            |
+| have_ssl      | YES                            |
+| ssl_ca        | /etc/mysql/newcerts/ca-cert.pem     |
+| ssl_capath    |                                |
+| ssl_cert      | /etc/mysql/newcerts/server-cert.pem |
+| ssl_cipher    |                                |
+| ssl_crl       |                                |
+| ssl_crlpath   |                                |
+| ssl_key       | /etc/mysql/newcerts/server-key.pem  |
++---------------+--------------------------------+
+
+You should notice the have_ssl and have_openssl values are enabled in the above output.
+Step 4 : Create a User with SSL Privileges
+
+Create a remote user who has privilege to access the MariaDB server over SSL. Do this by running the following command:
+
+First, login to the MySQL shell:
+
+mysql -u root -p
+
+Next, create user remote and grant privilege to access the server over SSL.
+
+MariaDB [(none)]>GRANT ALL PRIVILEGES ON *.* TO 'remote'@'192.168.0.191' IDENTIFIED BY 'password' REQUIRE SSL;
+
+Then, flush the privileges with the following command:
+
+MariaDB [(none)]>FLUSH PRIVILEGES;
+
+Finally, exit from the MySQL shell with the following command:
+
+MariaDB [(none)]>exit;
+
+Note: 192.168.0.191 is the IP address of the remote user (Client) machine.
+
+Your server is now ready to allow connections to remote user.
+Step 5 : Create The Client Certificate
+
+Your server side configuration is complete. Next, you will need to create a new key and certificate for the client.
+
+On the server machine, create the client key with the following command:
+
+sudo cd /etc/mysql/newcerts
+sudo sudo openssl req -newkey rsa:2048 -days 365 -nodes -keyout client-key.pem -out client-req.pem
+
+Next, process the client RSA key with the following command:
+
+sudo openssl rsa -in client-key.pem -out client-key.pem
+
+Finally, sign the client certificate with the following command:
+
+sudo openssl x509 -req -in client-req.pem -days 365 -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out client-cert.pem
+
+Step 6 : Configure MariaDB Client to Use SSL
+
+All the certificates and the key are ready for the client. Next, you will need to copy all the client certificates to any client machine where you want to run the MariaDB client.
+
+You will need to install the MariaDB client on the client machine.
+
+First, on the client machine, download the key for MariaDB with the following command:
+
+sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
+
+Then, add the MariaDB repository to the /etc/apt/sources.list file:
+
+sudo echo "deb [arch=amd64,i386,ppc64el] http://ftp.utexas.edu/mariadb/repo/10.1/ubuntu xenial main" >> /etc/apt/sources.list
+
+Next, update the apt index with the following command:
+
+sudo apt-get update -y
+
+Once apt index is updated, install the MariaDB client on the client machine with the following command:
+
+sudo apt-get install mariadb-client -y
+
+Now create a directory to store all the certificates:
+
+sudo mkdir /etc/mysql/newcerts
+
+Next, copy all the client certificates from the server machine to the client machine with the following command:
+
+sudo scp root@192.168.0.190:/etc/mysql/newcerts/client-* /etc/mysql/newcerts/
+
+Then, you will need to configure the MariaDB client to use SSL. You can do this by creating a /etc/mysql/mariadb.conf.d/50-mysql-clients.cnf file:
+
+sudo nano /etc/mysql/mariadb.conf.d/50-mysql-clients.cnf
+
+Add the following lines:
+
+[client]
+ssl-ca=/etc/mysql/newcerts/ca-cert.pem
+ssl-cert=/etc/mysql/newcerts/client-cert.pem
+ssl-key=/etc/mysql/newcerts/client-key.pem
+
+Save the file when you are finished.
+Step 7 : Verify Remote Connections
+
+Now that everything is configured, it's time to verify whether you can connect to the MariaDB server successfully or not.
+
+On the client machine, run the following command to connect to the MariaDB server:
+
+mysql -u remote -h 192.168.0.190 -p mysql
+
+You will be asked to enter the remote user password. After giving the password, you will be logged into the remote MariaDB server.
+
+Check the status of the connection with the following command:
+
+MariaDB [mysql]> status
+
+You should see the following output:
+
+--------------
+mysql  Ver 15.1 Distrib 10.2.7-MariaDB, for debian-linux-gnu (x86_64) using readline 5.2
+
+Connection id:      62
+Current database:   mysql
+Current user:       remote@192.168.0.191
+SSL:            Cipher in use is DHE-RSA-AES256-SHA
+Current pager:      stdout
+Using outfile:      ''
+Using delimiter:    ;
+Server:         MariaDB
+Server version:     10.0.31-MariaDB-0ubuntu0.16.04.2 Ubuntu 16.04
+Protocol version:   10
+Connection:     192.168.0.190 via TCP/IP
+Server characterset:    utf8mb4
+Db     characterset:    utf8mb4
+Client characterset:    utf8
+Conn.  characterset:    utf8
+TCP port:       3306
+Uptime:         1 hours 31 min 31 sec
+
+You should see SSL: Cipher in use is DHE-RSA-AES256-SHA in the above output. That means your connection is now secure with SSL.
+Conclusion
+
+Congratulations! You have successfully configured a MariaDB server with SSL support. You can now grant access to other clients to access the MariaDB server over SSL.

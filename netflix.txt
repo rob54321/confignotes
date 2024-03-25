@@ -1,0 +1,39 @@
+install kodi from installkodi18.2.txt
+
+install indigo from http://fusion.tvaddons.co
+ respository begin-here
+
+use indigo to install gitbrowser.
+
+with gitbrowser search by user name kodinerds.
+
+install kodinerds.zip
+
+install kodi-netflix.zip
+
+restart kodi
+
+
+in linux install pycryptodome required for netflix
+
+
+to install exodus redux
+
+in file manager insert
+
+https://i-a-c.github.io
+
+install redux from repository
+ repository exodusredux-xxx.zip
+
+can use github browser
+username search :  I-A-C
+
+
+to install exodus v8
+
+add http://mega-tron.tv/transform to file manager
+
+install from zip file : select transform
+
+repository.kodibae.zip

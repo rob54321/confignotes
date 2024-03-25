@@ -1,0 +1,153 @@
+How to get the Ausi Pi wireless network adaptor working as a AP with Ubuntu linux
+
+Check wlan0 is there:   ifconfig
+
+Install required packages:
+	  apt-get install hostapd isc-dhcp-server
+
+#################################
+edit /etc/dhcp/dhcpd.conf
+#################################
+	  
+Find the lines that say
+	  option domain-name "example.org";
+	  option domain-name-servers ns1.example.org, ns2.example.org;
+and change them to add a # in the beginning so they say
+	  #option domain-name "example.org";
+	  #option domain-name-servers ns1.example.org, ns2.example.org;
+
+uncomment:
+	  #authoritative;
+	  
+
+###############################
+edit /etc/dhcp/dhcpd.conf
+###############################
+add following lines to bottom of file
+
+	subnet 192.168.42.0 netmask 255.255.255.0 {
+	range 192.168.42.10 192.168.42.50;
+	option broadcast-address 192.168.42.255;
+	option routers 192.168.42.1;
+	default-lease-time 600;
+	max-lease-time 7200;
+	option domain-name "local";
+	option domain-name-servers 192.168.1.1, 8.8.8.8;
+	}
+
+###############################
+edit /etc/default/isc-dhcp-server
+###############################
+ INTERFACES="" and update it to say INTERFACES="wlan0"
+
+###############################
+ Set up wlan0 for static IP
+edit /etc/network/interfaces add the following lines
+###############################
+
+	allow hotplug wlan0
+	iface wlan0 inet static
+	address 192.168.42.1
+	netmask 255.255.255.0
+	
+assign static ip to wlan0
+
+ifconfig wlan0 192.168.42.1
+
+###########################################
+Create new file /etc/hostapd/hostapd.conf
+###########################################
+with the following lines
+
+	  interface=wlan0
+	  driver=nl80211
+	  # driver=rtl8192cu for edimax
+	  ssid=AusiPi_AP
+	  hw_mode=g
+	  channel=6
+	  macaddr_acl=0
+	  auth_algs=1
+	  ignore_broadcast_ssid=0
+	  wpa=2
+	  wpa_passphrase=0004ed0ea414
+	  wpa_key_mgmt=WPA-PSK
+	  wpa_pairwise=TKIP
+	  rsn_pairwise=CCMP
+
+	  
+	  
+#######################################
+edit /etc/default/hostapd
+#######################################
+change #DAEMON_CONF=""  to  DAEMON_CONF="/etc/hostapd/hostapd.conf"
+
+configure network address translation:
+
+#######################
+edit /etc/sysctl.conf
+#######################
+	  add: net.ipv4.ip_forward=1 to the the end of the file.
+
+#######################
+Set port forwarding now
+######################
+sh -c "echo 1 > /etc/proc/sys/net/ipv4/ip_forward"
+
+
+run the following commands:
+	  iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+	  iptables -A FORWARD -i eth0 -o wlan0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+	  iptables -A FORWARD -i wlan0 -o eth0 -j ACCEPT
+
+can check the tables with:
+	  iptables -t nat -S
+	  iptables -S
+	  
+to load iptables at each boot, save it and load it at boot:
+sh -c "iptables-save > /etc/iptables.ipv4.nat"
+
+edit /etc/network/interfaces   and add at end
+  up iptables-restore < /etc/iptables.ipv4.nat
+  
+Test:    /usr/sbin/hostapd /etc/hostapd/hostapd.conf
+(will get unable to initialise nl80211. the fix is below)
+
+
+***********************NOTE**************************
+/etc/default/ifplugd must be changed for wlan0 to get a static ip address
+the line:
+INTERFACES="auto"
+
+must be changed to
+INTERFACES="eth0"
+to exclude wlan0.
+**********************NOTE**************************
+
+The fix for when driver nl80211 cannot be initialised by hostapd on Linux
+
+
+nmcli nm wifi off
+rfkill unblock wlan
+
+ifconfig wlan0 192.168.42.1 up
+sleep 1
+service isc-dhcp-server restart
+service hostapd restart
+
+
+To start the daemon services
+	  update-rc.d hostapd enable/disable
+	  update-rc.d isc-dhcp-server enable/disable
+
+Script to start wlan0 and do the rfkill
+
+#!/bin/bash
+cd /root
+ifconfig wlan0 down
+nmcli nm wifi off
+rfkill unblock wlan
+iptables-restore < /etc/iptables.ipv4.nat
+ifconfig wlan0 192.168.42.1 up
+sleep 1
+service isc-dhcp-server restart
+service hostapd restart

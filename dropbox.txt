@@ -1,0 +1,42 @@
+How to get dropbox daemon running from startup
+edit /etc/rc.local :
+chmod 755 /etc/rc.local
+
+#!/bin/bash
+# start dropbox if it is not running
+sudo -u robert /home/robert/drop.sh
+#########################################################
+
+edit ~/drop.sh :
+chmod 755 ~/drop.sh
+
+#!/bin/bash
+dropbox running
+rc=$?
+if [ ${rc} -eq 0 ]
+then
+	echo "dropbox not running...starting"
+	dropbox start -i
+else
+	echo "dropbox is already running"
+fi
+#########################################################
+
+install dropbox from
+/etc/apt/sources.list.d/dropbox.list
+
+deb [arch=i386,amd64] http://linux.dropbox.com/ubuntu disco main
+
+
+
+How to get the dropbox panel indicator to appear in mate 18.04
+
+go to startup applications in X windows
+
+Change the one caja dropbox command to "dbus-launch dropbox start -i"
+instead of "dropbox start -i"
+
+Uncheck the other dropbox application.
+Reboot.
+Dropbox icon now appears on panel.
+

@@ -1,0 +1,339 @@
+# instructions on how to make live mbr and uefi disk
+# linux rescue, ubuntu-mate 19.04, ubuntu-mate 19.04 install and ubuntu 19.04
+
+Summary:
+++++++++
+Partition a disk as follows:
+/dev/sda1  8G vfat label MACRIUM_PE
+/dev/sda2  8G vfat label LIVE
+/dev/sda3  8G vfat label LIVE1
+/sev/sda4  rest of disk ntfs etc label ssd or whatever.
+
+Install Macrium on the disk. It will install in the first parition /dev/sda1 MACRIUM_PE
+
+
+
+1. debootstrap --arch=amd64 disco /mnt/hdint/chroot file:///mnt/hd3/ubuntu-archive
+this creates the chroot environment to generate the rescue environment.
+
+2. mount /dev/sda1 /mnt/hdint/chroot/boot to install linux rescue
+   casper directory will contain filesystem.squashfs, vmlinuz, initrd and casper-rw
+
+3. copy sources.list, trustedgpg trustedgpg.d to chroot/etc/apt
+   also copy /etc/netork/interfaces to chroot/etc/network/
+
+4. edit chroot/etc/fstab so hd3 can be mounted LABEL=hd3 /mnt/hd3 ext4 defaults 0 0
+
+5. chroot /mnt/hdint/chroot. don't forget to bindall first
+
+6. in chroot environment:
+	export LC_ALL=C
+	mount /mnt/hd3
+	apt-get udpate
+	apt-get install gnupg2
+	apt-key add /mnt/hd3/mydebian/keyFile
+	apt-get udpate
+	apt-get install linux-image-5.0.0-13-generic casper lupin-casper os-prober laptop-detect ubuntu-standard
+	apt-get install network-manager networkd-dispatcher
+   exit chroot environment
+
+7 step 6 will generate grub and grub.cfg. Install to /dev/sda if that is the disk.
+
+8 remove the initrd and config and vmlinuz and System from the linux-image package.
+
+9 mount iso file ubuntu-mate-desktop-amd64.iso and copy vmlinuz and initrd from the casper directory
+  to the casper and casper1 directory on live. Also copy filesystem.squashfs to casper1 on live.
+
+10 in each casper and casper1 make a casper-rw for persistence. 
+	cd /mnt/hdint/chroot/boot/casper
+	dd if=/dev/zero of=casper-rw bs=1M count=3000
+	mkfs.ext4 -v -j -F casper-rw
+	cp casper-rw from casper/ to casper1/
+
+
+12 copy mbr grub.cfg:  chroot/backups/ad64/mbr/grub.cfg to chroot/boot/grub/
+
+
+18 To prevent only Windows boot manager comming up and not grub,
+rename the file EFI/Microsoft/Boot/bootmgfw.efi to EFI/Microsoft/Boot/bootmgfw.efi.old
+
+
+to install grub in mbr and efi mode (partition 1 works as both)
+sudo grub-install -v --no-floppy --boot-directory=/mnt/hdint/chroot/boot --target=i386-pc /dev/sda
+sudo grub-install -v --no-floppy --boot-directory=/mnt/hdint/chroot/boot/EFI --efi-directory=/mnt/hdint/chroot/boot --removable --target=x86_64-efi /dev/sda
+
+so that /mnt/hdint/chroot/boot/grub/grub.cfg is for mbr
+and     /mnt/hdint/chroot/boot/EFI/grub/grub.cfg is for EFI
+
+============================================================
+## MBR grub.cfg
+
+
+if loadfont /boot/grub/font.pf2 ; then
+	set gfxmode=auto
+	insmod gfxterm
+	terminal_output gfxterm
+fi
+
+set menu_color_normal=white/blue
+set menu_color_highlight=black/white
+
+set timeout=10
+menuentry "Ubuntu MATE 19.04 rescue" {
+	set gfxpayload=keep
+
+	insmod part_msdos
+	insmod fat
+	set root='hd0,msdos1'
+
+	linux	/casper/vmlinuz  boot=casper ignore_uuid persistent persistent-path=/casper/ live-media-path=/casper/ hostname=live username=robert  quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper/initrd
+}
+menuentry "Try Ubuntu MATE 19.04" {
+	set gfxpayload=keep
+
+	insmod part_msdos
+	insmod fat
+	set root='hd0,msdos2'
+
+	linux	/casper1/vmlinuz  boot=casper ignore_uuid persistent persistent-path=/casper1/ live-media-path=/casper1/ hostname=live username=robert  quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper1/initrd
+}
+menuentry "Install Ubuntu MATE 19.04" {
+	set gfxpayload=keep
+
+	insmod part_msdos
+	insmod fat
+	set root='hd0,msdos2'
+
+	linux	/casper1/vmlinuz  only-ubiquity boot=casper ignore_uuid persistent persistent-path=/casper1/ live-media-path=/casper1/ hostname=live username=robert  quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper1/initrd
+}
+menuentry "Install Ubuntu MATE 19.04 (safe graphics)" {
+	set gfxpayload=keep
+
+	insmod part_msdos
+	insmod fat
+	set root='hd0,msdos2'
+
+	linux	/casper1/vmlinuz  only-ubiquity nomodeset boot=casper ignore_uuid persistent persistent-path=/casper1/ live-media-path=/casper1/ hostname=live username=robert  quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper1/initrd
+}
+menuentry "OEM install (for manufacturers)" {
+	set gfxpayload=keep
+
+	insmod part_msdos
+	insmod fat
+	set root='hd0,msdos2'
+
+	linux	/casper1/vmlinuz  only-ubiquity oem-config/enable=true boot=casper ignore_uuid persistent persistent-path=/casper1/ live-media-path=/casper1/ hostname=live username=robert  quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper1/initrd
+}
+menuentry "Try Ubuntu 19.04" {
+	set gfxpayload=keep
+
+	insmod part_msdos
+	insmod fat
+	set root='hd0,msdos3'
+
+	linux	/casper2/vmlinuz  boot=casper ignore_uuid persistent persistent-path=/casper2/ live-media-path=/casper2/ hostname=live username=robert  quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper2/initrd
+}
+menuentry "Install Ubuntu 19.04" {
+	set gfxpayload=keep
+
+	insmod part_msdos
+	insmod fat
+	set root='hd0,msdos3'
+
+	linux	/casper2/vmlinuz  only-ubiquity boot=casper ignore_uuid persistent persistent-path=/casper2/ live-media-path=/casper2/ hostname=live username=robert  quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper2/initrd
+}
+menuentry "Install Ubuntu 19.04 (safe graphics)" {
+	set gfxpayload=keep
+
+	insmod part_msdos
+	insmod fat
+	set root='hd0,msdos3'
+
+	linux	/casper2/vmlinuz  only-ubiquity nomodeset boot=casper ignore_uuid persistent persistent-path=/casper2/ live-media-path=/casper2/ hostname=live username=robert  quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper2/initrd
+}
+menuentry "OEM install (for manufacturers)" {
+	set gfxpayload=keep
+
+	insmod part_msdos
+	insmod fat
+	set root='hd0,msdos3'
+
+	linux	/casper2/vmlinuz  only-ubiquity oem-config/enable=true boot=casper ignore_uuid persistent persistent-path=/casper2/ live-media-path=/casper2/ hostname=live username=robert  quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper2/initrd
+}
+menuentry 'Windows Recovery Environment (on /dev/sda1)' --class windows --class os $menuentry_id_option 'osprober-chain-AED6-434E' {
+	insmod part_msdos
+	insmod fat
+	set root='hd0,msdos1'
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root --hint-bios=hd0,msdos1 --hint-efi=hd0,msdos1 --hint-baremetal=ahci0,msdos1  AED6-434E
+	else
+	  search --no-floppy --fs-uuid --set=root AED6-434E
+	fi
+	parttool ${root} hidden-
+	drivemap -s (hd0) ${root}
+	chainloader +1
+}
+
+
+##########
+grub.cfg for efi
+
+
+if loadfont /boot/grub/font.pf2 ; then
+	set gfxmode=auto
+	insmod efi_gop
+	insmod efi_uga
+	insmod gfxterm
+	terminal_output gfxterm
+fi
+
+set menu_color_normal=white/blue
+set menu_color_highlight=black/white
+
+set timeout=10
+menuentry "Ubuntu MATE 19.04 rescue" {
+	set gfxpayload=keep
+
+	insmod part_gpt
+	insmod fat
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root  AED6-434E
+	else
+	  search --no-floppy --fs-uuid --set=root AED6-434E
+	fi
+
+	linux	/casper/vmlinuz  boot=casper ignore_uuid persistent persistent-path=/casper/ live-media-path=/casper/ hostname=live username=robert quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper/initrd
+}
+menuentry "Try Ubuntu MATE 19.04" {
+	set gfxpayload=keep
+
+	insmod part_gpt
+	insmod fat
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root  D412-9586
+	else
+	  search --no-floppy --fs-uuid --set=root D412-9586
+	fi
+
+	linux	/casper1/vmlinuz  boot=casper ignore_uuid persistent persistent-path=/casper1/ live-media-path=/casper1/ hostname=live username=robert quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper1/initrd
+}
+menuentry "Install Ubuntu MATE 19.04" {
+	set gfxpayload=keep
+
+	insmod part_gpt
+	insmod fat
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root  D412-9586
+	else
+	  search --no-floppy --fs-uuid --set=root D412-9586
+	fi
+
+	linux	/casper1/vmlinuz  only-ubiquity boot=casper ignore_uuid persistent persistent-path=/casper1/ live-media-path=/casper1/ hostname=live username=robert quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper1/initrd
+}
+menuentry "Install Ubuntu MATE 19.04 (safe graphics)" {
+	set gfxpayload=keep
+
+	insmod part_gpt
+	insmod fat
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root  D412-9586
+	else
+	  search --no-floppy --fs-uuid --set=root D412-9586
+	fi
+
+	linux	/casper1/vmlinuz  only-ubiquity nomodeset boot=casper ignore_uuid persistent persistent-path=/casper1/ live-media-path=/casper1/ hostname=live username=robert quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper1/initrd
+}
+menuentry "OEM install (for manufacturers)" {
+	set gfxpayload=keep
+
+	insmod part_gpt
+	insmod fat
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root  D412-9586
+	else
+	  search --no-floppy --fs-uuid --set=root D412-9586
+	fi
+
+	linux	/casper1/vmlinuz  only-ubiquity oem-config/enable=true boot=casper ignore_uuid persistent persistent-path=/casper1/ live-media-path=/casper1/ hostname=live username=robert quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper1/initrd
+}
+menuentry "Try Ubuntu 19.04" {
+	set gfxpayload=keep
+
+	insmod part_gpt
+	insmod fat
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root  798D-5B25
+	else
+	  search --no-floppy --fs-uuid --set=root 798D-5B25
+	fi
+
+	linux	/casper2/vmlinuz  boot=casper ignore_uuid persistent persistent-path=/casper2/ live-media-path=/casper2/ hostname=live username=robert quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper2/initrd
+}
+menuentry "Install Ubuntu 19.04" {
+	set gfxpayload=keep
+
+	insmod part_gpt
+	insmod fat
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root  798D-5B25
+	else
+	  search --no-floppy --fs-uuid --set=root 798D-5B25
+	fi
+
+	linux	/casper2/vmlinuz  only-ubiquity boot=casper ignore_uuid persistent persistent-path=/casper2/ live-media-path=/casper2/ hostname=live username=robert quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper2/initrd
+}
+menuentry "Install Ubuntu 19.04 (safe graphics)" {
+	set gfxpayload=keep
+
+	insmod part_gpt
+	insmod fat
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root  798D-5B25
+	else
+	  search --no-floppy --fs-uuid --set=root 798D-5B25
+	fi
+
+	linux	/casper2/vmlinuz  only-ubiquity nomodeset boot=casper ignore_uuid persistent persistent-path=/casper2/ live-media-path=/casper2/ hostname=live username=robert quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper2/initrd
+}
+menuentry "OEM install (for manufacturers)" {
+	set gfxpayload=keep
+
+	insmod part_gpt
+	insmod fat
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root  798D-5B25
+	else
+	  search --no-floppy --fs-uuid --set=root 798D-5B25
+	fi
+
+	linux	/casper2/vmlinuz  only-ubiquity oem-config/enable=true boot=casper ignore_uuid persistent persistent-path=/casper2/ live-media-path=/casper2/ hostname=live username=robert quickreboot noprompt file=/cdrom/preseed/ubuntu-mate.seed  ---
+	initrd	/casper2/initrd
+}
+menuentry "Windows Boot Manager (on /dev/sda1 EFI)" {
+	insmod part_gpt
+	insmod fat
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root  AED6-434E
+	else
+	  search --no-floppy --fs-uuid --set=root AED6-434E
+	fi
+	chainloader /EFI/Microsoft/Boot/bootmgfw.efi.old
+}
+

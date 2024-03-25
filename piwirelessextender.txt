@@ -1,0 +1,30 @@
+How to set up wireless interface as a client
+for the asus wireless network.
+Uninstalled network-manager
+wpasupplicant must be installed.
+installauspi must be installed to make the host AP side.
+useful commands iwconfig, iwlist scan
+check /usr/share/doc/wpasupplicant/README.modes.gz
+
+Only /etc/network/interfaces must be set
+Then use ifup if or ifdown if to start stop interface.
+
+Note: after lo, the first interface is used as the default gateway.
+
+# interfaces(5) file used by ifup(8) and ifdown(8)
+auto lo
+iface lo inet loopback
+
+auto wlan1
+allow-hotplug wlan1
+iface wlan1 inet dhcp
+	netmask 255.255.255.0
+	wpa-ssid asus
+	wpa-key-mgmt WPA-PSK
+	wpa-pairwise TKIP CCMP
+	wpa-passphrase 0004ed0ea414
+
+auto eth0
+allow-hotplug eth0
+iface eth0 inet dhcp
+

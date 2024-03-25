@@ -1,0 +1,8 @@
+# How to turn off hibernation in windows 10 
+# so that uefi disk can be mounted in linux
+
+open a command window as administrator and type:
+powercfg /h off
+
+to turn it on for faster booting
+type powercfg /h on in a command window.

@@ -1,0 +1,46 @@
+HOW TO CREATE A KEY AND SIGN MYDEBIAN
+=====================================
+
+If the private key is lost a new key must
+be generated to sign mydebian
+
+generate a key
+
+gpg --gen-key
+chose option 4 4096 bits
+
+chose key does not expire.
+
+chose passphrase
+
+to list the keys and key id
+gpg --list-keys
+
+export the public keys
+gpg --output /mnt/hdext/mydebian/keyFile --armor --export keyid
+
+to add the key to apt-key
+apt-key add /mnt/hdext/mydebian/keyFile
+
+then run signmydebian which is below:
+
+#!/bin/bash
+# for ubuntu
+cd /mnt/hdext/mydebian/dists/ubuntu
+gpg --use-agent --clearsign -o InRelease Release
+gpg --use-agent -abs -o Release.gpg Release
+
+# for common
+cd /mnt/hdext/mydebian/dists/common
+gpg --use-agent --clearsign -o InRelease Release
+gpg --use-agent -abs -o Release.gpg Release
+
+# for debian
+cd /mnt/hdext/mydebian/dists/debian
+gpg --use-agent --clearsign -o InRelease Release
+gpg --use-agent -abs -o Release.gpg Release
+
+# for rpi
+cd /mnt/hdext/mydebian/dists/rpi
+gpg --use-agent --clearsign -o InRelease Release
+gpg --use-agent -abs -o Release.gpg Release

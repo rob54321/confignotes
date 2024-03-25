@@ -1,0 +1,899 @@
+Power up with new SaaS Add-Ons from the DigitalOcean Marketplace
+<https://www.digitalocean.com/blog/announcing-add-ons>
+
+  * Products <https://www.digitalocean.com/products>
+  * Pricing <https://www.digitalocean.com/pricing>
+  * Docsdropdown
+  * Sign indropdown
+
+<https://www.digitalocean.com/>
+<https://www.digitalocean.com/community>
+Tutorials <https://www.digitalocean.com/community/tutorials>Questions
+<https://www.digitalocean.com/community/questions>Tech Talks
+<https://www.digitalocean.com/community/tags/tech-talks>Get Involveddropdwn
+
+search community
+/
+
+Sign Up
+<https://www.digitalocean.com/api/dynamic-content/v1/login?success_redirect=https%3A%2F%2Fwww.digitalocean.com%2Fcommunity%2Ftutorials%2Fhow-to-install-and-secure-phpmyadmin-on-ubuntu-22-04&error_redirect=https%3A%2F%2Fwww.digitalocean.com%2Fauth_error>
+
+  * CONTENTSIntroduction
+    <https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-phpmyadmin-on-ubuntu-22-04#introduction>
+  * Prerequisites
+    <https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-phpmyadmin-on-ubuntu-22-04#prerequisites>
+  * Step 1 — Installing phpMyAdmin
+    <https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-phpmyadmin-on-ubuntu-22-04#step-1-installing-phpmyadmin>
+  * Step 2 — Adjusting User Authentication and Privileges
+    <https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-phpmyadmin-on-ubuntu-22-04#step-2-adjusting-user-authentication-and-privileges>
+  * Configuring Password Access for the MySQL Root Account
+    <https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-phpmyadmin-on-ubuntu-22-04#configuring-password-access-for-the-mysql-root-account>
+  * Configuring Password Access for a Dedicated MySQL User
+    <https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-phpmyadmin-on-ubuntu-22-04#configuring-password-access-for-a-dedicated-mysql-user>
+  * Step 3 — Securing Your phpMyAdmin Instance
+    <https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-phpmyadmin-on-ubuntu-22-04#step-3-securing-your-phpmyadmin-instance>
+  * Conclusion
+    <https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-phpmyadmin-on-ubuntu-22-04#conclusion>
+
+
+      Related
+
+Initial Server Setup with Ubuntu 12.04
+
+Tutorial
+ <https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-12-04>
+How To Install Ruby on Rails on Ubuntu 12.04 LTS (Precise Pangolin) with RVM
+
+Tutorial
+ <https://www.digitalocean.com/community/tutorials/how-to-install-ruby-on-rails-on-ubuntu-12-04-lts-precise-pangolin-with-rvm>
+
+
+        // Tutorial //
+
+
+  How To Install and Secure phpMyAdmin on Ubuntu 22.04
+
+Published on April 26, 2022
+
+  * Apache <https://www.digitalocean.com/community/tags/apache>
+  * Applications <https://www.digitalocean.com/community/tags/applications>
+  * Databases <https://www.digitalocean.com/community/tags/databases>
+  * MySQL <https://www.digitalocean.com/community/tags/mysql>
+  * PHP <https://www.digitalocean.com/community/tags/php>
+  * Ubuntu <https://www.digitalocean.com/community/tags/ubuntu>
+  * Ubuntu 22.04 <https://www.digitalocean.com/community/tags/ubuntu-22-04>
+
+Default avatar
+By Mark Drake <https://www.digitalocean.com/community/users/mdrake>
+Manager, Developer Education
+How To Install and Secure phpMyAdmin on Ubuntu 22.04
+
+
+          Not using Ubuntu 22.04?
+          Choose a different version or distribution.
+
+Ubuntu 22.04
+
+
+      Introduction
+
+While many users need the functionality of a database management system
+like MySQL, they may not feel comfortable interacting with the system
+solely from the MySQL prompt.
+
+phpMyAdmin <https://www.phpmyadmin.net/> was created so that users can
+interact with MySQL through a web interface. In this guide, we’ll
+discuss how to install and secure phpMyAdmin so that you can safely use
+it to manage your databases on an Ubuntu 22.04 system.
+
+
+    Prerequisites
+
+In order to complete this guide, you will need:
+
+  * An Ubuntu 22.04 server. This server should have a non-root user with
+    administrative privileges and a firewall configured with |ufw|. To
+    set this up, follow our initial server setup guide for Ubuntu 22.04
+    <https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-22-04>.
+  * A LAMP (Linux, Apache, MySQL, and PHP) stack installed on your
+    Ubuntu 22.04 server. If this is not completed yet, you can follow
+    this guide on installing a LAMP stack on Ubuntu 22.04
+    <https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-on-ubuntu-22-04>.
+
+Additionally, there are important security considerations when using
+software like phpMyAdmin, since it:
+
+  * Communicates directly with your MySQL installation
+  * Handles authentication using MySQL credentials
+  * Executes and returns results for arbitrary SQL queries
+
+For these reasons, and because it is a widely-deployed PHP application
+which is frequently targeted for attack, you should never run phpMyAdmin
+on remote systems over a plain HTTP connection.
+
+If you do not have an existing domain configured with an SSL/TLS
+certificate, you can follow this guide on securing Apache with Let’s
+Encrypt on Ubuntu 22.04
+<https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-22-04>. This will require you to register a domain name <https://docs.digitalocean.com/tutorials/dns-registrars/>, create DNS records for your server <https://www.digitalocean.com/docs/networking/dns/>, and set up an Apache Virtual Host <https://www.digitalocean.com/community/tutorials/how-to-install-the-apache-web-server-on-ubuntu-22-04#step-5-setting-up-virtual-hosts-recommended>.
+
+
+    Step 1 — Installing phpMyAdmin
+
+You can use APT to install phpMyAdmin from the default Ubuntu repositories.
+
+As your non-root sudo user, update your server’s package index if you
+haven’t done so recently:
+
+|
+
+ 1. sudo apt update
+
+|
+
+Copy
+
+Following that you can install the |phpmyadmin| package. Along with this
+package, the official documentation also recommends
+<https://docs.phpmyadmin.net/en/latest/require.html> that you install a
+few PHP extensions onto your server to enable certain functionalities
+and improve performance.
+
+If you followed the prerequisite LAMP stack tutorial
+<https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-on-ubuntu-22-04>, several of these modules will have been installed along with the |php| package. However, it’s recommended that you also install these packages:
+
+  * |php-mbstring|: A module for managing non-ASCII strings and convert
+    strings to different encodings
+  * |php-zip|: This extension supports uploading |.zip| files to phpMyAdmin
+  * |php-gd|: Enables support for the GD Graphics Library
+    <https://en.wikipedia.org/wiki/GD_Graphics_Library>
+  * |php-json|: Provides PHP with support for JSON serialization
+  * |php-curl|: Allows PHP to interact with different kinds of servers
+    using different protocols
+
+Run the following command to install these packages onto your system.
+Please note, though, that the installation process requires you to make
+some choices to configure phpMyAdmin correctly. We’ll walk through these
+options shortly:
+
+|
+
+ 1. sudo apt install phpmyadmin php-mbstring php-zip php-gd php-json php-curl
+
+|
+
+Copy
+
+Here are the options you should choose when prompted in order to
+configure your installation correctly:
+
+  * For the server selection, choose |apache2|
+
+*Warning:* When the prompt appears, “apache2” is highlighted, but *not*
+selected. If you do not hit |SPACE| to select Apache, the installer
+*will not* move the necessary files during installation. Hit |SPACE|,
+|TAB|, and then |ENTER| to select Apache.
+
+  * Select |Yes| when asked whether to use |dbconfig-common| to set up
+    the database
+  * You will then be asked to choose and confirm a MySQL application
+    password for phpMyAdmin
+
+*Note*: Assuming you installed MySQL by following Step 2 of the
+prerequisite LAMP stack tutorial
+<https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-on-ubuntu-22-04#step-2-configuring-mysql>, you may have decided to enable the Validate Password plugin. As of this writing, enabling this component will trigger an error when you attempt to set a password for the *phpmyadmin* user:
+
+phpMyAdmin password validation error
+
+To resolve this, select the *abort* option to stop the installation
+process. Then, open up your MySQL prompt:
+
+|
+
+ 1. sudo mysql
+
+|
+
+Copy
+
+Or, if you enabled password authentication for the *root* MySQL user,
+run this command and then enter your password when prompted:
+
+|
+
+ 1. mysql -u root -p
+
+|
+
+Copy
+
+From the prompt, run the following command to disable the Validate
+Password component. Note that this won’t actually uninstall it, but just
+stop the component from being loaded on your MySQL server:
+
+|
+
+ 1. UNINSTALL COMPONENT "file://component_validate_password";
+
+|
+
+Copy
+
+Following that, you can close the MySQL client:
+
+|
+
+ 1. exit
+
+|
+
+Copy
+
+Then try installing the |phpmyadmin| package again and it will work as
+expected:
+
+|
+
+ 1. sudo apt install phpmyadmin
+
+|
+
+Copy
+
+Once phpMyAdmin is installed, you can open the MySQL prompt once again
+with |sudo mysql| or |mysql -u root -p| and then run the following
+command to re-enable the Validate Password component:
+
+|
+
+ 1. INSTALL COMPONENT "file://component_validate_password";
+
+|
+
+Copy
+
+The installation process adds the phpMyAdmin Apache configuration file
+into the |/etc/apache2/conf-enabled/| directory, where it is read
+automatically. To finish configuring Apache and PHP to work with
+phpMyAdmin, the only remaining task in this section of the tutorial is
+to is explicitly enable the |mbstring| PHP extension, which you can do
+by typing:
+
+|
+
+ 1. sudo phpenmod mbstring
+
+|
+
+Copy
+
+Afterwards, restart Apache for your changes to be recognized:
+
+|
+
+ 1. sudo systemctl restart apache2
+
+|
+
+Copy
+
+phpMyAdmin is now installed and configured to work with Apache. However,
+before you can log in and begin interacting with your MySQL databases,
+you will need to ensure that your MySQL users have the privileges
+required for interacting with the program.
+
+
+    Step 2 — Adjusting User Authentication and Privileges
+
+When you installed phpMyAdmin onto your server, it automatically created
+a database user called *phpmyadmin* which performs certain underlying
+processes for the program. Rather than logging in as this user with the
+administrative password you set during installation, it’s recommended
+that you log in as either your *root* MySQL user or as a user dedicated
+to managing databases through the phpMyAdmin interface.
+
+
+      Configuring Password Access for the MySQL Root Account
+
+In Ubuntu systems running MySQL 5.7 (and later versions), the *root*
+MySQL user is set to authenticate using the |auth_socket| plugin by
+default rather than with a password. This allows for some greater
+security and usability in many cases, but it can also complicate things
+when you need to allow an external program — like phpMyAdmin — to access
+the user.
+
+In order to log in to phpMyAdmin as your *root* MySQL user, you will
+need to switch its authentication method from |auth_socket| to one that
+makes use of a password, if you haven’t already done so. To do this,
+open up the MySQL prompt from your terminal:
+
+|
+
+ 1. sudo mysql
+
+|
+
+Copy
+
+Next, check which authentication method each of your MySQL user accounts
+use with the following command:
+
+|
+
+ 1. SELECT user,authentication_string,plugin,host FROM mysql.user;
+
+|
+
+Copy
+
+|
+Output
++------------------+------------------------------------------------------------------------+-----------------------+-----------+
+| user             | authentication_string                                                  | plugin                | host      |
++------------------+------------------------------------------------------------------------+-----------------------+-----------+
+| debian-sys-maint | $A$005$I:jOry?]Sy<|qhQRj3fBRQ43i4UJxrpm.IaT6lOHkgveJjmeIjJrRe6         | caching_sha2_password | localhost |
+| mysql.infoschema | $A$005$THISISACOMBINATIONOFINVALIDSALTANDPASSWORDTHATMUSTNEVERBRBEUSED | caching_sha2_password | localhost |
+| mysql.session    | $A$005$THISISACOMBINATIONOFINVALIDSALTANDPASSWORDTHATMUSTNEVERBRBEUSED | caching_sha2_password | localhost |
+| mysql.sys        | $A$005$THISISACOMBINATIONOFINVALIDSALTANDPASSWORDTHATMUSTNEVERBRBEUSED | caching_sha2_password | localhost |
+| phpmyadmin       | $A$005$?#{Z?`gN!c2az)}V-INCWXSuVdqB9zWteH1IkZfTe/rOLgVhSzEMM9R3G6K9    | caching_sha2_password | localhost |
+| root             |                                                                        | auth_socket           | localhost |
++------------------+------------------------------------------------------------------------+-----------------------+-----------+
+6 rows in set (0.00 sec)
+|
+
+This example output indicates that the *root* user does in fact
+authenticate using the |auth_socket| plugin. To configure the *root*
+account to authenticate with a password, run the following |ALTER USER|
+command. Be sure to change |password| to a strong password of your choosing:
+
+|
+
+ 1. ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY 'password';
+
+|
+
+Copy
+
+*Note*: The previous |ALTER USER| statement sets the *root* MySQL user
+to authenticate with the |caching_sha2_password| plugin. Per the
+official MySQL documentation
+<https://dev.mysql.com/doc/refman/8.0/en/upgrading-from-previous-series.html#upgrade-caching-sha2-password>, |caching_sha2_password| is MySQL’s preferred authentication plugin, as it provides more secure password encryption than the older, but still widely used, |mysql_native_password|.
+
+However, some versions of PHP don’t work reliably with
+|caching_sha2_password|. PHP has reported that this issue was fixed as
+of PHP 7.4
+<https://php.watch/articles/PHP-7.4-MySQL-8-server-gone-away-fix>, but
+if you encounter an error when trying to log in to phpMyAdmin later on,
+you may want to set *root* to authenticate with |mysql_native_password|
+instead:
+
+|
+
+ 1. ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
+
+|
+
+Copy
+
+Then, check the authentication methods employed by each of your users
+again to confirm that *root* no longer authenticates using the
+|auth_socket| plugin:
+
+|
+
+ 1. SELECT user,authentication_string,plugin,host FROM mysql.user;
+
+|
+
+Copy
+
+|
+Output
++------------------+------------------------------------------------------------------------+-----------------------+-----------+
+| user             | authentication_string                                                  | plugin                | host      |
++------------------+------------------------------------------------------------------------+-----------------------+-----------+
+| debian-sys-maint | $A$005$I:jOry?]Sy<|qhQRj3fBRQ43i4UJxrpm.IaT6lOHkgveJjmeIjJrRe6         | caching_sha2_password | localhost |
+| mysql.infoschema | $A$005$THISISACOMBINATIONOFINVALIDSALTANDPASSWORDTHATMUSTNEVERBRBEUSED | caching_sha2_password | localhost |
+| mysql.session    | $A$005$THISISACOMBINATIONOFINVALIDSALTANDPASSWORDTHATMUSTNEVERBRBEUSED | caching_sha2_password | localhost |
+| mysql.sys        | $A$005$THISISACOMBINATIONOFINVALIDSALTANDPASSWORDTHATMUSTNEVERBRBEUSED | caching_sha2_password | localhost |
+| phpmyadmin       | $A$005$?#{Z?`gN!c2az)}V-INCWXSuVdqB9zWteH1IkZfTe/rOLgVhSzEMM9R3G6K9    | caching_sha2_password | localhost |
+| root             | $A$005$3y�y|Z?'_[} ZyVHuESVwNmjKWOH/ndETwS.Kty0IH7UfiXjOfVvyWroy4a.   | caching_sha2_password | localhost |
++------------------+------------------------------------------------------------------------+-----------------------+-----------+
+6 rows in set (0.00 sec)
+|
+
+This output shows that the *root* user will authenticate using a
+password. You can now log in to the phpMyAdmin interface as your *root*
+user with the password you’ve set for it here.
+
+
+      Configuring Password Access for a Dedicated MySQL User
+
+Alternatively, some may find that it better suits their workflow to
+connect to phpMyAdmin with a dedicated user. To do this, open up the
+MySQL shell once again:
+
+|
+
+ 1. sudo mysql
+
+|
+
+Copy
+
+If you have password authentication enabled for your *root* user, as
+described in the previous section, you will need to run the following
+command and enter your password when prompted in order to connect:
+
+|
+
+ 1. mysql -u root -p
+
+|
+
+Copy
+
+From there, create a new user and give it a strong password:
+
+|
+
+ 1. CREATE USER 'sammy'@'localhost' IDENTIFIED WITH caching_sha2_password BY 'password';
+
+|
+
+Copy
+
+*Note*: Again, depending on what version of PHP you have installed, you
+may want to set your new user to authenticate with
+|mysql_native_password| instead of |caching_sha2_password|:
+
+|
+
+ 1. ALTER USER 'sammy'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
+
+|
+
+Copy
+
+Then, grant your new user appropriate privileges. For example, you could
+grant the user privileges to all tables within the database, as well as
+the power to add, change, and remove user privileges, with this command:
+
+|
+
+ 1. GRANT ALL PRIVILEGES ON *.* TO 'sammy'@'localhost' WITH GRANT OPTION;
+
+|
+
+Copy
+
+Following that, exit the MySQL shell:
+
+|
+
+ 1. exit
+
+|
+
+Copy
+
+You can now access the web interface by visiting your server’s domain
+name or public IP address followed by |/phpmyadmin|:
+
+|https://your_domain_or_IP/phpmyadmin
+|
+
+phpMyAdmin login screen
+
+Log in to the interface, either as *root* or with the new username and
+password you just configured.
+
+When you log in, you’ll be taken to phpMyAdmin’s user interface:
+
+phpMyAdmin user interface
+
+Now that you’re able to connect and interact with phpMyAdmin, all that’s
+left to do is harden your system’s security to protect it from attackers.
+
+
+    Step 3 — Securing Your phpMyAdmin Instance
+
+Because of its ubiquity, phpMyAdmin is a popular target for attackers,
+and you should take extra care to prevent unauthorized access. One way
+of doing this is to place a gateway in front of the entire application
+by using Apache’s built-in |.htaccess| authentication and authorization
+functionalities.
+
+To do this, you must first enable the use of |.htaccess| file overrides
+by editing your phpMyAdmin installation’s Apache configuration file.
+
+Use your preferred text editor to edit the |phpmyadmin.conf| file that
+has been placed in your Apache configuration directory. Here, we’ll use
+|nano|:
+
+|
+
+ 1. sudo nano /etc/apache2/conf-available/phpmyadmin.conf
+
+|
+
+Copy
+
+Add an |AllowOverride All| directive within the |<Directory
+/usr/share/phpmyadmin>| section of the configuration file, like this:
+
+/etc/apache2/conf-available/phpmyadmin.conf
+
+|<Directory /usr/share/phpmyadmin>
+    Options SymLinksIfOwnerMatch
+    DirectoryIndex index.php
+    AllowOverride All
+    . . .
+|
+
+When you have added this line, save and close the file. If you used
+|nano| to edit the file, do so by pressing |CTRL + X|, |Y|, and then
+|ENTER|.
+
+To implement the changes you made, restart Apache:
+
+|
+
+ 1. sudo systemctl restart apache2
+
+|
+
+Copy
+
+Now that you have enabled the use of |.htaccess| files for your
+application, you need to create one to actually implement some security.
+
+In order for this to be successful, the file must be created within the
+application directory. You can create the necessary file and open it in
+your text editor with root privileges by typing:
+
+|
+
+ 1. sudo nano /usr/share/phpmyadmin/.htaccess
+
+|
+
+Copy
+
+Within this file, enter the following information:
+
+/usr/share/phpmyadmin/.htaccess
+
+|AuthType Basic
+AuthName "Restricted Files"
+AuthUserFile /etc/phpmyadmin/.htpasswd
+Require valid-user
+|
+
+Here is what each of these lines mean:
+
+  * |AuthType Basic|: This line specifies the authentication type that
+    you are implementing. This type will implement password
+    authentication using a password file.
+  * |AuthName|: This sets the message for the authentication dialog box.
+    You should keep this generic so that unauthorized users won’t gain
+    any information about what is being protected.
+  * |AuthUserFile|: This sets the location of the password file that
+    will be used for authentication. This should be outside of the
+    directories that are being served. We will create this file shortly.
+  * |Require valid-user|: This specifies that only authenticated users
+    should be given access to this resource. This is what actually stops
+    unauthorized users from entering.
+
+When you are finished, save and close the file.
+
+The location that you selected for your password file was
+|/etc/phpmyadmin/.htpasswd|. You can now create this file and pass it an
+initial user with the |htpasswd| utility:
+
+|
+
+ 1. sudo htpasswd -c /etc/phpmyadmin/.htpasswd username
+
+|
+
+Copy
+
+You will be prompted to select and confirm a password for the user you
+are creating. Afterwards, the file is created with the hashed password
+that you entered.
+
+If you want to enter an additional user, you need to do so *without* the
+|-c| flag, like this:
+
+|
+
+ 1. sudo htpasswd /etc/phpmyadmin/.htpasswd additionaluser
+
+|
+
+Copy
+
+Then restart Apache to put |.htaccess| authentication into effect:
+
+|
+
+ 1. sudo systemctl restart apache2
+
+|
+
+Copy
+
+Now, when you access your phpMyAdmin subdirectory, you will be prompted
+for the additional account name and password that you just configured:
+
+|https://domain_name_or_IP/phpmyadmin
+|
+
+phpMyAdmin apache password
+
+After entering the Apache authentication, you’ll be taken to the regular
+phpMyAdmin authentication page to enter your MySQL credentials. By
+adding an extra set of non-MySQL credentials, you’re providing your
+database with an additional layer of security. This is desirable, since
+phpMyAdmin has been vulnerable to security threats in the past.
+
+
+    Conclusion
+
+You should now have phpMyAdmin configured and ready to use on your
+Ubuntu 22.04 server. Using this interface, you can create databases,
+users, and tables, as well as perform the usual operations like deleting
+and modifying structures and data.
+
+------------------------------------------------------------------------
+
+
+      Want to learn more? Join the DigitalOcean Community!
+
+Join our DigitalOcean community of over a million developers for free!
+Get help and share knowledge in our Questions & Answers section, find
+tutorials and tools that will help you grow as a developer and scale
+your project or business, and subscribe to topics of interest.
+
+Sign up
+<https://www.digitalocean.com/api/dynamic-content/v1/login?success_redirect=https%3A%2F%2Fwww.digitalocean.com%2Fcommunity%2Ftutorials%2Fhow-to-install-and-secure-phpmyadmin-on-ubuntu-22-04&error_redirect=https%3A%2F%2Fwww.digitalocean.com%2Fauth_error>
+About the authors
+Default avatar
+Mark Drake <https://www.digitalocean.com/community/users/mdrake>
+
+author
+Manager, Developer Education
+
+Technical Writer @ DigitalOcean
+
+
+        Still looking for an answer?
+
+Ask a question <https://www.digitalocean.com/community/questions>Search
+for more help <https://www.digitalocean.com/community>
+Was this helpful?
+Yes
+
+No
+
+<https://twitter.com/share?text=How%20To%20Install%20and%20Secure%20phpMyAdmin%20on%20Ubuntu%2022.04&url=https%3A%2F%2Fwww.digitalocean.com%2Fcommunity%2Ftutorials%2Fhow-to-install-and-secure-phpmyadmin-on-ubuntu-22-04%3Futm_medium%3Dcommunity%26utm_source%3Dtwshare%26utm_content%3Dhow-to-install-and-secure-phpmyadmin-on-ubuntu-22-04>
+
+<https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fwww.digitalocean.com%2Fcommunity%2Ftutorials%2Fhow-to-install-and-secure-phpmyadmin-on-ubuntu-22-04%3Futm_medium%3Dcommunity%26utm_source%3Dtwshare%26utm_content%3Dhow-to-install-and-secure-phpmyadmin-on-ubuntu-22-04>
+Comments
+
+1 Comments
+
+<https://www.digitalocean.com/community/markdown>
+
+Login to Comment
+<https://www.digitalocean.com/api/dynamic-content/v1/login?success_redirect=https%3A%2F%2Fwww.digitalocean.com%2Fcommunity%2Ftutorials%2Fhow-to-install-and-secure-phpmyadmin-on-ubuntu-22-04&error_redirect=https%3A%2F%2Fwww.digitalocean.com%2Fauth_error>
+William Desportes
+<https://www.digitalocean.com/community/users/williamdes>• April 28,
+2022
+<https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-phpmyadmin-on-ubuntu-22-04?comment=172557>
+
+Good tutorial ! The screenshot seems not up to date. You can find more
+informations at:
+https://github.com/phpmyadmin/phpmyadmin/wiki/DebianUbuntu
+<https://github.com/phpmyadmin/phpmyadmin/wiki/DebianUbuntu>
+
+*Reply*
+
+Creative Commons
+<https://creativecommons.org/licenses/by-nc-sa/4.0/>This work is
+licensed under a Creative Commons Attribution-NonCommercial- ShareAlike
+4.0 International License.
+<https://creativecommons.org/licenses/by-nc-sa/4.0/>
+App Platform: Run PHP apps without managing serversProduct
+
+With App Platform, you can:
+
+  * Build, deploy, and scale apps and static sites by simply pointing to
+    your GitHub repository
+  * Let us manage the infrastructure, app runtimes, and other dependencies
+  * Get started by building and deploying three static sites for free
+
+Learn More
+
+<https://cloud.digitalocean.com/apps>
+Popular Topics
+
+  * Ubuntu <https://www.digitalocean.com/community/tags/ubuntu>
+  * Linux Basics <https://www.digitalocean.com/community/tags/linux-basics>
+  * JavaScript <https://www.digitalocean.com/community/tags/javascript>
+  * React <https://www.digitalocean.com/community/tags/react>
+  * Python <https://www.digitalocean.com/community/tags/python>
+  * Security <https://www.digitalocean.com/community/tags/security>
+  * Apache <https://www.digitalocean.com/community/tags/apache>
+  * MySQL <https://www.digitalocean.com/community/tags/mysql>
+  * Databases <https://www.digitalocean.com/community/tags/databases>
+  * Docker <https://www.digitalocean.com/community/tags/docker>
+  * Kubernetes <https://www.digitalocean.com/community/tags/kubernetes>
+  * Ebooks <https://www.digitalocean.com/community/tags/book>
+  * Browse all topic tags <https://www.digitalocean.com/community/tags>
+  * All tutorialsArrow icon
+    <https://www.digitalocean.com/community/tutorials>
+
+Questions
+
+  * Q&A <https://www.digitalocean.com/community/questions>
+  * Ask a question <https://www.digitalocean.com/community/questions/new>
+  * DigitalOcean Product Docs <https://docs.digitalocean.com/products/>
+  * DigitalOcean Support <https://docs.digitalocean.com/support/>
+
+Events
+
+  * Tech Talks <https://www.digitalocean.com/community/tags/tech-talks>
+  * Hacktoberfest <https://hacktoberfest.digitalocean.com/>
+  * Deploy <https://deploy.digitalocean.com/>
+
+Get involved
+
+  * Community Newsletter <https://www.digitalocean.com/community/newsletter>
+  * Hollie's Hub for Good
+    <https://www.digitalocean.com/community/pages/hollies-hub-for-good>
+  * Write for DOnations
+    <https://www.digitalocean.com/community/pages/write-for-digitalocean>
+  * Community tools and integrations
+    <https://www.digitalocean.com/community/tools>
+  * Hatch Startup program <https://www.digitalocean.com/hatch>
+  * Create your free Community account!Arrow icon
+    <https://www.digitalocean.com/api/dynamic-content/v1/login?success_redirect=https%3A%2F%2Fwww.digitalocean.com%2Fcommunity%2Ftutorials%2Fhow-to-install-and-secure-phpmyadmin-on-ubuntu-22-04&error_redirect=https%3A%2F%2Fwww.digitalocean.com%2Fauth_error>
+
+
+          Join the Tech Talk
+
+*Success!* Thank you! Please check your email for further details.
+
+Please complete your information!
+
+Get our biweekly newsletter
+
+Sign up for Infrastructure as a Newsletter.
+
+<https://www.digitalocean.com/community/newsletter>
+Hollie's Hub for Good
+
+Working on improving health and education, reducing inequality, and
+spurring economic growth? We'd like to help.
+
+<https://www.digitalocean.com/community/pages/hollies-hub-for-good>
+Become a contributor
+
+You get paid; we donate to tech nonprofits.
+
+<https://www.digitalocean.com/community/pages/write-for-digitalocean>
+
+Featured on CommunityKubernetes Course
+<https://www.digitalocean.com/community/tutorials/an-introduction-to-kubernetes>Learn Python 3 <https://www.digitalocean.com/community/tutorial_series/how-to-code-in-python-3>Machine Learning in Python <https://www.digitalocean.com/community/tutorials/machine-learning-projects-python-a-digitalocean-ebook>Getting started with Go <https://www.digitalocean.com/community/tutorials/how-to-write-your-first-program-in-go>Intro to Kubernetes <https://www.digitalocean.com/community/tutorials/an-introduction-to-kubernetes>
+------------------------------------------------------------------------
+DigitalOcean ProductsVirtual Machines
+<https://www.digitalocean.com/products/droplets>Managed Databases
+<https://www.digitalocean.com/products/managed-databases>Managed
+Kubernetes <https://www.digitalocean.com/products/kubernetes>Block
+Storage <https://www.digitalocean.com/products/block-storage>Object
+Storage <https://www.digitalocean.com/products/spaces>Marketplace
+<https://marketplace.digitalocean.com/>VPC
+<https://www.digitalocean.com/products/vpc>Load Balancers
+<https://www.digitalocean.com/products/load-balancer>
+
+
+      Welcome to the developer cloud
+
+DigitalOcean makes it simple to launch in the cloud and scale up as you
+grow – whether you’re running one virtual machine or ten thousand.
+
+Learn More <https://www.digitalocean.com/products>
+DigitalOcean Cloud Control Panel <https://www.digitalocean.com/products>
+
+DigitalOcean Homepage
+
+© 2022 DigitalOcean, LLC. All rights reserved.
+Company
+
+  * About <https://www.digitalocean.com/about>
+  * Leadership <https://www.digitalocean.com/about/leadership>
+  * Blog <https://www.digitalocean.com/blog>
+  * Careers <https://www.digitalocean.com/careers>
+  * Partners <https://www.digitalocean.com/partners>
+  * Referral Program <https://www.digitalocean.com/referral-program>
+  * Press <https://www.digitalocean.com/press>
+  * Legal <https://www.digitalocean.com/legal>
+  * Security & Trust Center <https://www.digitalocean.com/trust>
+
+Products
+
+  * Pricing <https://www.digitalocean.com/pricing>
+  * Products Overview <https://www.digitalocean.com/products>
+  * Droplets <https://www.digitalocean.com/products/droplets>
+  * Kubernetes <https://www.digitalocean.com/products/kubernetes>
+  * Managed Databases
+    <https://www.digitalocean.com/products/managed-databases>
+  * Spaces <https://www.digitalocean.com/products/spaces>
+  * Marketplace <https://www.digitalocean.com/products/marketplace>
+  * Load Balancers <https://www.digitalocean.com/products/load-balancer>
+  * Block Storage <https://www.digitalocean.com/products/block-storage>
+  * API Documentation <https://developers.digitalocean.com/documentation/>
+  * Documentation <https://www.digitalocean.com/docs>
+  * Release Notes <https://www.digitalocean.com/docs/release-notes/>
+
+Community
+
+  * Tutorials <https://www.digitalocean.com/community/tutorials>
+  * Q&A <https://www.digitalocean.com/community/questions>
+  * Tools and Integrations <https://www.digitalocean.com/community/tools>
+  * Tags <https://www.digitalocean.com/community/tags>
+  * Write for DigitalOcean
+    <https://www.digitalocean.com/community/pages/write-for-donations>
+  * Presentation Grants <https://www.digitalocean.com/droplets-for-demos>
+  * Hatch Startup Program <https://www.digitalocean.com/hatch>
+  * Shop Swag <http://store.digitalocean.com/>
+  * Research Program <https://www.digitalocean.com/research>
+  * Open Source <https://www.digitalocean.com/open-source>
+  * Code of Conduct
+    <https://www.digitalocean.com/community/pages/code-of-conduct>
+
+Contact
+
+  * Get Support <https://www.digitalocean.com/support/>
+  * Trouble Signing In?
+    <https://www.digitalocean.com/docs/getting-started/faq/>
+  * Sales <https://www.digitalocean.com/company/contact/sales/>
+  * Report Abuse <https://www.digitalocean.com/company/contact#abuse>
+  * System Status <https://status.digitalocean.com/>
+  * Share your ideas <https://ideas.digitalocean.com/>
+
+Community
+
+  * Tutorials <https://www.digitalocean.com/community/tutorials>
+  * Questions <https://www.digitalocean.com/community/questions>
+  * Write for Us
+    <https://www.digitalocean.com/community/pages/write-for-digitalocean>
+  * Hacktoberfest <https://hacktoberfest.digitalocean.com/>
+  * Tools <https://www.digitalocean.com/community/tools>
+
+Products
+
+  * Homepage <https://www.digitalocean.com/>
+  * Pricing <https://www.digitalocean.com/pricing>
+  * Product Overview <https://www.digitalocean.com/products>
+  * Marketplace <https://marketplace.digitalocean.com/>
+
+Customers
+
+  * Control Panel <https://cloud.digitalocean.com/>
+  * Documentation <https://www.digitalocean.com/docs>
+  * Contact Support <https://www.digitalocean.com/company/contact#support>
+  * Contact Sales <https://www.digitalocean.com/company/contact/sales>
+
+Sign in
+<https://www.digitalocean.com/api/dynamic-content/v1/login?success_redirect=https%3A%2F%2Fwww.digitalocean.com%2Fcommunity%2Ftutorials%2Fhow-to-install-and-secure-phpmyadmin-on-ubuntu-22-04&error_redirect=https%3A%2F%2Fwww.digitalocean.com%2Fauth_error>
+x
+
+Loading...
+
+
+Community
+
+
+navigate go exit

@@ -1,0 +1,11 @@
+This lists some search strings for regular expressions
+in grep, perl grep etc.
+
+To find a '
+perl: @f =~ /'\''/;
+perl: grep /'\''/,@list; # looks for ' in list
+perl: grep /'\''|\"/, @list; # looks for ' or " in list
+
+bash: grep -e "some ' else" file;  # looks for some ' else in file"
+bash: grep -e "one" -e "two" -e "three" file; # looks for one or two or three in lines in a file
+bash: grep -e "'" -e "\"" file; # looks for ' or " in all lines in a file

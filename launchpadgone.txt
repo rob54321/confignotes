@@ -1,0 +1,5 @@
+how to restore the launchpad when it and the dashboard dissapear.
+
+delete /home/robert.config:   rm -rf /home/robert/.config
+
+reboot

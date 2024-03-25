@@ -1,0 +1,39 @@
+How to recover grub if windows has overwritten it
+
+boot linux from a usb device.
+mount all partitions under /mnt/root
+/mnt/root/usr/local /mnt/root/home /mnt/root/boot /mnt/root/boot/efi (very important)
+
+grub-install --boot-directory=/mnt/root/boot/efi --efi-directory=/mnt/root/boot/efi/EFI --target=x86_64-efi /dev/sdX
+
+where sdX is the boot device for linux, on lenovo it is /dev/sda
+
+then run update-grub.
+
+Fix UUID's
+Windows reinstall changes uuid of efi partition.
+Edit /etc/fstab on boot device so that the correct partition is mounted
+
+for windows recovery from grub
+
+the stansa is in /boot/grub/custom.cfg
+Check that the uuid is correct for the vfat recovery partition
+The sources with install.wim must be on an ntfs partition as it's size > 4G
+
+set menu_color_normal=white/blue
+set menu_color_highlight=red/light-gray
+set color_normal=yellow/blue
+set color_hightlight=red/black
+
+menuentry 'Windows Recovery (on /dev/sda9)' --class windows --class os $menuentry_id_option 'osprober-efi-4444-4444' {
+	savedefault
+	insmod part_gpt
+	insmod fat
+	search --no-floppy --fs-uuid --set=root 4444-4444
+	chainloader /bootmgfw.efi
+}
+
+To format a vfat partition for recovery
+mkfs.vfat -v -n RECOVERY -i 44444444 /dev/sdXx
+
+eg mkfs.vfat -n RECOVERY -i 44444444 /dev/sda9 for lenovo

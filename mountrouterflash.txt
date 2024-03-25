@@ -1,0 +1,13 @@
+# how to mount an smb flash from the router.
+# this first volume is volume(sda1)
+
+install cifs-utils
+
+mount.cifs //192.168.1.1/volume\(sda1\) /mnt/router -o uid=robert,gid=robert,vers=1.0,guest
+
+inside of fstab
+
+//192.168.1.1/volume(sda1) /mnt/router cifs noauto,uid=robert,gid=robert,file_mode=0777,dir_mode=0777,guest,vers=1.0 0 0
+
+## not no escape chars before ( )  no \(  \) which must be used in command line.
+

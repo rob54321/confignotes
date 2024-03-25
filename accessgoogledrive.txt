@@ -1,0 +1,53 @@
+Installing Google-Drive-Ocamlfuse
+
+Google Drive Ocamlfuse is available for many different Linux distributions. 
+Here’s how to get it working:
+Ubuntu
+
+You can install Google Drive Ocamlfuse by adding a PPA. Enter these three 
+commands in the terminal to install it.
+
+sudo add-apt-repository ppa:alessandro-strada/ppa
+sudo apt-get update
+sudo apt-get install google-drive-ocamlfuse
+
+Syncing with Google-Drive-Ocamlfuse
+
+To sync with Google, first sign in. Do this by running this command in a 
+terminal window:
+
+google-drive-ocamlfuse
+
+Doing this will instantly open a Google Oauth sign in window. Enter the details 
+of your Google account to continue.
+
+Then, create the sync folder with:
+
+mkdir -p ~/Google-Drive
+
+With everything set up, syncing can begin. Pull everything down from Google 
+Drive with this command:
+
+google-drive-ocamlfuse ~/Google-Drive
+
+Uploading Files
+
+Uploading files to Google Drive with the sync client works the same way as 
+downloading. To upload files to a Drive account, simply place any file inside 
+the ~/Google-Drive folder, then run the sync command. As Google Drive Ocamlfuse 
+starts up, it’ll look over the local sync folder for any changes that might have 
+been made and upload those changes. Additionally, deleting a file locally will 
+delete it on Drive as well (just run the sync command after deleting something).
+
+
+Once created go ahead and mount it there by running this command:
+
+google-drive-ocamlfuse ~/googledrive
+
+Pop open Nautilus (or whichever modern file manager you use) and you will see 
+your Google Drive mount listed in the sidebar as a device.
+
+When you’re finished editing, adding or copying files you can unmount the fuse 
+filesystem with this command:
+
+fusermount -u ~/google-drive

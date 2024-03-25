@@ -1,0 +1,5 @@
+how to set console fonts
+run
+dpkg-reconfigure console-setup
+from a terminal.
+

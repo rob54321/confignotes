@@ -1,0 +1,43 @@
+Notes on how to make windows recovery for my desktop
+and how to include a menu option for grub.
+
+make the install.wim file which is an image of windows C:
+	boot windows pe from macrium of windows.iso image
+	press shift f10 to open admin console
+	run diskpart list vol to see what the driver letters are
+	run dism /capture-image /imagefile:D:\backups\install.wim /capturedir:C:\ /name:"MSIRecovery" /compress:maximum /ScratchDir:D:\scratch
+		where C: is the windows installation drive, may be different, diskpart will indicate what it is
+		where D: is the destination drive, may be different, diskpart will indicate what it is
+		dism must be run in a separate windows process to the drive being imaged.
+
+partitions on C: drive
+	make a 1GB fat32 partition for booting recovery
+	make a sizeof(install.wim) + 3GB ntfs partition for holding sources
+
+	copy all files from windows.iso to fat32 partition except the sources directory.
+	this partition must have UUID = 2222-2222
+	make a sources directory and put only boot.wim in it.
+
+	copy sources from iso to ntfs partition.
+	place the install.wim file in sources dir on ntfs partition.
+	maybe rename install.esd to install.esd.bak in sources.
+	install.esd is default image.
+
+Grub
+	edit /boot/grub/custom.grub to include a menu item 
+	for booting recovery. It only boots in UEFI mode.
+
+/boot/grub/custom.cfg
+	set menu_color_normal=white/blue
+	set menu_color_highlight=red/light-gray
+	set color_normal=yellow/blue
+	set color_hightlight=red/black
+
+	menuentry 'Windows MSI Recovery (on /dev/nvme1n1p4)' --class windows --class os $menuentry_id_option 'osprober-efi-2222-2222' {
+		savedefault
+		insmod part_gpt
+		insmod fat
+		search --no-floppy --fs-uuid --set=root 2222-2222
+		chainloader /bootmgfw.efi
+	}
+

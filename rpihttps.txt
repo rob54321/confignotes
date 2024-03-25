@@ -1,0 +1,111 @@
+# how to set up https for raspberry pi
+# apache2 must be installed
+# verify apache2
+systemctl status apache2.service
+
+# ip of raspberry pi must be set to static in router.
+# set to 192.168.0.100
+
+
+# check default html page
+# browse to http://192.168.0.100/index.html
+# where ip is the local ip of raspberry pi
+
+# generate private key and certificate
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout private.key
+  -out certificate.crt
+
+# openssl will ask some questions
+# Common name (e.g. server FQDN or YOUR name) []:192.168.0.100
+# this generates 2 files
+# files private.key and certificate.crt
+# move these files
+mv private.key /etc/ssl/private/
+mv certificate.crt /etc/ssl/certs/
+
+# edit apache2 configuration 
+nano /etc/apache2/sites-available/000-default.conf
+
+# edit <VirtualHost *:80> and append this line
+# so that all requests to http are redirected to https
+<VirtualHost *:80>
+        . . .
+        Redirect "/" "https://192.168.0.100/"
+        . . .
+</VirtualHost>
+
+# append code for virtuals host using port 443 for https
+<VirtualHost *:443>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/html
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+        SSLEngine on
+        SSLProtocol all -SSLv2
+        SSLCipherSuite HIGH:MEDIUM:!aNULL:!MD5
+        SSLCertificateFile "/etc/ssl/certs/certificate.crt"
+        SSLCertificateKeyFile "/etc/ssl/private/private.key"
+</VirtualHost>
+
+# save file, enable ssl module for apache2 and check config
+a2enmod ssl
+apache2ctl configtest
+systemctl restart apache2.service
+
+# now https://192.168.0.100/index.html 
+# will work. Accept risk
+
+# for the router
+# a static ip must be set for rpi
+# and port forwarding must be done.
+# to setup the static ip
+# logon to http://192.168.0.1
+# add static ip by Connections-Setup -> LAN
+# check static IP Addresses known/clients +
+# click the + sign.
+# add ip address
+# make sure it is not int Statistics->DHCP
+# apply the settings
+
+# for port forwarding:
+Firewall->Virtual Servers
+# click the + sign.
+# select Template->HTTPS
+# fill in 192.168.0.100 into private ip
+# also select NAT Loopback -- very important
+# for access to port 3306
+# select custom, interface all, TCP, NAT Loopback,
+#     private IP 192.168.0.100, private port 3306,
+#      ADD REMOTE IP PUBLIC port 3306, APPLY
+# apply the settings
+
+# NOT necessary to enable DMZ
+
+# to get access to mariadb from the internet
+# for eg mysql-workbench
+nano /etc/mysql/mariadb.conf.d/50-server.cnf
+# change line bind-address   =127.0.0.1
+# to bind-address   =0.0.0.0
+# save file and restart mysql
+systemctl restart mariadb
+
+# check with
+netstat -ant | grep 3306
+# should give
+tcp       0      0  0.0.0.0:3306           0.0.0.0*          LISTEN
+
+# grant all rights to robert from any host
+grant all on *.* to robert@'%' IDENTIFIED BY coahtr WITH GRANT OPTION;
+
+# to show grants
+select User,Host from mysql.user;
+
+# to list all grants
+show grants for robert@'%';
+
+# to revoke all grants
+revoke all privileges, grant option from robert@'%';
+
+# to delete a user
+drop user robert;
+

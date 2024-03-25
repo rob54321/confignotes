@@ -1,0 +1,5 @@
+To configure Kile.
+Settings->Configure Kile->Tools->Build->QuickBuild->LaTex+DVItoPS+PStoPDF+ViewPDF.
+
+Choose the above when a build fails with graphics content.
+

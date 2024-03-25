@@ -1,0 +1,25 @@
+How to configure wordpress files so that they are writeable by apache2.
+1. copy all wp files to /var/www/html
+They must be in the root directory ot /var/www/html
+
+2. chown www-data.www-data /var/www/html
+
+3. chmod 775 /var/www/html
+
+4. The file .htaccess will be created in  /var/www/html
+
+-rw-r--r--  1 www-data www-data   236 Dec 28 12:38 .htaccess
+
+The file must contain:
+
+# BEGIN WordPress
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+
+5. If the above is not done, WP complains that .htaccess is not writeable.

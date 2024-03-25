@@ -1,0 +1,9 @@
+How to make a garmin course from mapsource or google earth.
+
+Plot the course in Mapsource with the auto router or plot in google earth.
+View this route in google earth.
+Save the route as a .kml file. In side window select all way down to path.
+Convert the .kml file to a .gpx file using http://www.gpsvisulizer.com. Be sure to include elevelation data.
+Download the converted file and rename to something.gpx
+Use gpsbabel to convert the .gpx (xml) file to a garmin training center file .tcx.
+Copy the .tcx file into the edge Garmin/Courses directory.

@@ -1,0 +1,9 @@
+How to root the moto x play
+
+first unlock the bootloader. There is a file for this.
+
+Power off the phone.
+Hold volume down + power and it will boot into bootloader/fastboot mode
+run fastboot flash recovery twrp.img
+
+Use TWRP to install superuser.zip

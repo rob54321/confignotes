@@ -1,0 +1,20 @@
+# who to disable nouveau driver
+
+$ sudo bash -c "echo blacklist nouveau > /etc/modprobe.d/blacklist-nvidia-nouveau.conf"
+$ sudo bash -c "echo options nouveau modeset=0 >> /etc/modprobe.d/blacklist-nvidia-nouveau.conf"
+
+Confirm the content of the new modprobe config file:
+
+$ cat /etc/modprobe.d/blacklist-nvidia-nouveau.conf
+blacklist nouveau
+options nouveau modeset=0
+
+Update kernel initramfs
+Enter the following linux command to regenerate initramfs:
+
+$ sudo update-initramfs -u
+
+Reboot
+All should be ready now. Reboot your system:
+
+

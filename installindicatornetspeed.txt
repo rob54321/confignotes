@@ -1,0 +1,6 @@
+To install indicator netspeed.
+
+apt-get install indicator-netspeed
+
+then launch startup applications in X windows and add /usr/bin/indicator-netspeed.
+

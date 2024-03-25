@@ -1,0 +1,18 @@
+How to set grub colour menus
+
+the file custom.cfg must exist in /boot/grub
+it gets loaded automatically
+no need to run update-grub
+
+/boot/grub/custom.cfg
+
+set menu_color_normal=white/blue
+set menu_color_highlight=red/light-gray
+set color_normal=yellow/blue
+set color_hightlight=red/black
+
+To set os prober to be used
+in /etc/default/grub
+add the line
+GRUB_DISABLE_OS_PROBER="false"
+

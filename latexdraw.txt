@@ -1,0 +1,5 @@
+In draw properties, Draw->Drawing Properties->Here instead of default for where the image
+must be placed.
+Also use \input{filename} in the source file.
+Not \include{filename}
+

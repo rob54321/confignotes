@@ -1,0 +1,91 @@
+Ubuntu
+
+sudo apt install git
+
+git clone https://github.com/xybu92/onedrive-d.git
+
+Then, enter the code directory to start the install process.
+
+cd ~/onedrive-d
+
+Installing OneDrive-D
+
+The OneDrive-D code downloaded with Git contains a lot of different things; 
+binaries, libraries, and different scripts, etc. Luckily, the developers made 
+installing this software very straight-forward. They’ve written a Bash script 
+that will completely configure the program, and get everything working. To start 
+the installation process, simply run the script. This is done by running it as a 
+program.
+
+Running the script will allow it to start installing all of the little things 
+that OneDrive-D needs to run correctly. Specifically, libraries, and other 
+important tools that the program is built with will be installed. Be sure to 
+enter your password (if asked) and allow the program to continue installing what 
+it needs.
+Configure OneDrive-D
+
+Next in the process comes configuring OneDrive-D. This is necessary, as the 
+program needs to connect to Microsoft servers and start the initial sync. Since 
+OneDrive-D is a terminal based program, the initial program will not create a 
+desktop icon, or anything like that. Instead, a command is required to start the 
+configuration process. Start it in a terminal with:
+
+onedrive-perf
+
+There are 4 simple steps to this configuration process. The first step involves 
+connecting the sync client to your Microsoft account. In the terminal, 
+onedrive-perf will print out a one-time link. Paste this link into your default 
+browser, and authorize OneDrive-D access to your Microsoft account to continue 
+to step 2 of the process.
+
+After clicking “yes” in the connection window, you’ll need to paste the callback 
+URL back into the terminal. Not sure what that is? It’s the URL that the 
+connection window redirects to. You’ll know you’re getting the right URL, 
+because refreshing stops. A good giveaway is to look for “code=” in the URL.
+
+Step two in the process is to tell OneDrive-D where to sync to. If you haven’t 
+got a OneDrive sync folder on your PC already, now is the time to create one. 
+Open another terminal and enter this command:
+
+mkdir -p ~/OneDrive
+
+Then, in step 2, tell the program where the folder is so that it can be used as 
+the sync location. Be sure to use the full path: /home/username/OneDrive/
+
+Step 1 and 2 are the most important parts of the configuration process. Steps 3 
+and 4 involve settings to do with both the numeric settings and the ignore file 
+list. Most Microsoft OneDrive users will not need to do anything with steps 3 
+and 4. Enter “n” for no to get through both of these steps. If for some reason 
+you feel like you want to edit these settings, choose Y instead to do so.
+
+Note: be sure to change “username” to your PC’s username in the command.
+Syncing with OneDrive-D
+
+When the configuration process finishes, syncing can begin. Much like 
+configuration, this needs to be done within the terminal. OneDrive-D runs in the 
+background as a process. All that the user needs to do is start it. This is done 
+with:
+
+onedrive-d start
+
+From here, the terminal can be closed at any time. OneDrive-D will continue 
+running as a background program, uploading and downloading anything placed in 
+the OneDrive sync folder. To turn off the background program, use this command:
+
+onedrive-d stop
+
+Conclusion
+
+Microsoft OneDrive is one of the better cloud storage tools out there. It has 
+great integration within the Windows desktop, along with neat features like 
+integrating Microsoft Office, fast upload/download speeds and more. It’s no 
+wonder some Linux users are begging Microsoft to bring this service and it’s 
+features to their favorite operating system as well. Unfortunately, Microsoft 
+has no plans to do so.
+
+As Linux users, we’ll never be able to experience what it’s like to have this 
+service baked into our operating system like Windows users do. Luckily, for 
+those that need access to OneDrive and are willing to go without some of the 
+flashy things, this program is a must. If OneDrive isn’t your preferred cloud 
+storage, you can check out Google Drive. It’s fairly easy to access Google Drive 
+on Linux.

@@ -1,0 +1,9 @@
+samba needs a password for access to the shares.
+This is done with
+smbpasswd -a robert
+
+It will prompt for a password.
+
+to mount a samba volume
+as root:
+mount.cifs //rpi/root /mnt/rpi -o user=robert,pass=coahtr,uid=robert,gid=robert

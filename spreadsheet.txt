@@ -1,0 +1,27 @@
+to enter a reference to a cell in 
+another spreadsheet where the name
+is kept in cell A23.
+
+=INDIRECT(CONCATENATE("'", A23, "'", "#$Main.B4"))
+the "'" are important , see below
+
+cell A23 contains
+file:///home/robert/Documents/homeaccounts/hom.ods
+
+as text.
+
+to reference a cell directly in another spreadsheet:
+
+='file:///home/robert/Documents/homeaccounts/homeacc2023.ods'#$Main.B$4
+
+the whole file name must be immersed in 'file:///full file name'.
+
+or even more compact
+
+=INDIRECT(CONCATENATE("'", "file:///home/robert/Documents/homeaccounts/homeacc", A28, ".ods", "'", "#$Main.B4"))
+
+where A28 contains
+2023
+
+as text.
+

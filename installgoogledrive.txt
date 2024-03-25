@@ -1,0 +1,49 @@
+Install Google Drive Ocamlfuse
+
+Google Drive Ocamlfuse is available to install on Ubuntu 16.04 LTS and up by 
+using the following dedicated PPA:
+
+sudo add-apt-repository ppa:alessandro-strada/ppa
+
+sudo apt update && sudo apt install google-drive-ocamlfuse
+
+Arch Linux users can install google-drive-ocamlfuse from AUR.
+How to use Google Drive Ocamlfuse
+
+With the install complete you can go ahead and set up the app to work with your 
+Google Drive account. While there isn’t a fancy-pants GUI front-end for setting 
+things up don’t feel put. GDO is super simple to use via the CLI.
+
+To get started run the app from the command line using this command:
+
+google-drive-ocamlfuse
+
+The first time you do this the utility will create all the relevant config files 
+and folders it needs to mount your Google Drive account. It will also launch 
+your default web browser so that you sign in and authorize access to your Google 
+Drive files.
+
+Sign in with your Google username and password and, when the screen above 
+appears, grant the utility permission to access your files and folders.
+
+That’s it; you’re pretty much good to go!
+
+All that’s left is to create an empty folder in which to mount Google Drive on 
+your system.
+
+mkdir ~/googledrive
+
+Once created go ahead and mount it there by running this command:
+
+google-drive-ocamlfuse ~/googledrive
+
+Pop open Nautilus (or whichever modern file manager you use) and you will see 
+your Google Drive mount listed in the sidebar as a device.
+
+When you’re finished editing, adding or copying files you can unmount the fuse 
+filesystem with this command:
+
+fusermount -u ~/google-drive
+
+You can try to unmount it using the eject button you’ll see in Nautilus, Nemo, 
+etc but this won’t work; you’ll get a permissions error.

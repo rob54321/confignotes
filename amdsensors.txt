@@ -1,0 +1,16 @@
+# to make the nct6775 module to read amd ryzen sensors
+
+sudo apt-get install lm-sensors git
+sudo apt-get install linux-headers-`uname -r`
+git clone https://github.com/groeck/nct6775
+cd nct6775/
+make
+sudo cp /proc/kallsyms /boot/System.map-`uname -r`;
+sudo make install
+sudo modprobe nct6775
+sudo sensors-detect
+watch -n1 sensors
+
+
+also install xsensors, psensors and lm-sensors
+

@@ -1,0 +1,78 @@
+If the private key is lost, ie a fresh install etc.
+
+import a a secret key
+gpg --import secretkeyfile.gpg
+
+a public key can be generated once the secret key exists
+gpg --output publickey.asc --armor --export keyid(last 8 digits of secret key)
+
+generate a key
+
+gpg --gen-key
+chose option 4 4096 bits
+
+chose key does not expire.
+
+chose passphrase
+
+to list the keys and key id
+sudo gpg --list-keys
+
+Note: the last 8 hex digits of the fingerprint are the keyid.
+This can be used for export, only the last 8 digits
+
+example: gpg --list-keys
+
+/root/.gnupg/pubring.kbx
+------------------------
+pub   rsa3072 2020-06-23 [SC] [expires: 2022-06-23]
+      1946E10B37F16E07804F11CA73FA4DEB454B7A99
+uid           [ultimate] Robert Key <robkey54321@gmail.com>
+sub   rsa3072 2020-06-23 [E] [expires: 2022-06-23]
+
+The keyid is 454B7A99
+the last 8 digits of the fingerprint.
+
+
+export the public keys from the secrect key
+gpg --output /mnt/hdext/mydebian/publickey.asc --armor --export secret_key_id(last 8 digits)
+
+to add the key to apt-key for access to repository
+copy the publickey.asc to /etc/apt/keyrings/
+the apt sources file: /etc/apt/sources.list.d/debhome.sources
+must be:
+
+Types: deb
+URIs: file:///mnt/debhome
+Components: main
+Architectures: amd64
+Suites: home
+Signed-By: /etc/apt/sources.list.d/publickey.asc
+
+The secret key is used for signing
+The public key is used for access to repository
+The public key is generated from the secret key
+gpg --output publickey.asc --armor --export secret_key_id(last 8 digits)
+
+then run signmydebian which is below:
+
+#!/bin/bash
+# for ubuntu
+cd /mnt/hdext/mydebian/dists/ubuntu
+gpg --use-agent --clearsign -o InRelease Release
+gpg --use-agent -abs -o Release.gpg Release
+
+# for common
+cd /mnt/hdext/mydebian/dists/common
+gpg --use-agent --clearsign -o InRelease Release
+gpg --use-agent -abs -o Release.gpg Release
+
+# for debian
+cd /mnt/hdext/mydebian/dists/debian
+gpg --use-agent --clearsign -o InRelease Release
+gpg --use-agent -abs -o Release.gpg Release
+
+# for rpi
+cd /mnt/hdext/mydebian/dists/rpi
+gpg --use-agent --clearsign -o InRelease Release
+gpg --use-agent -abs -o Release.gpg Release

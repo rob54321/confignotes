@@ -1,0 +1,6 @@
+To use perl tk debugger
+
+sudo apt install perl-tk libdevel-ptkdb-perl
+
+to run the debugger
+perl -d:ptkdb programme.pl

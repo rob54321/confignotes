@@ -1,0 +1,36 @@
+How to install samba on the goflex wireless drive.
+
+1. install version 1.3.7 of the firmware by copying the file to
+the root directory on the drive and booting. Wait 5 minuts for the software to
+install.
+
+2. reset the drive while on. This can be done from the seagate app
+or by pushing through the hole in the bottom of the drive.
+
+3. Boot the drive, telnet 172.25.0.1, login with root password goflex.
+mkdir /media/sda1/opt, then make link ln -s /media/sda1/opt /opt.
+Extra files will now be installed on the drive,
+ not in flash ram of which there is very little.
+
+4. cd /etc/opkg , remove all files except arch.conf and opkg.conf.
+ Now copy /media/sda1/samba/opkg.conf to /etc/opkg.
+This file has  the following 4 lines appended to it:
+src cs08q1armel file:///media/sda1/optware
+
+dest root /
+lists_dir ext /var/lib/opkg
+
+5. opkg update
+
+6. opkg install samba2
+
+7. copy /media/sda1/samba/smb.conf to /opt/etc/samba
+
+8. copy /media/sda1/samba/S80samba to /opt/etc/init.d/
+
+9. in each of /etc/rc2.d /etc/rc3.d /etc/rc4.d /etc/rc5.d insert a link:
+ln -s /opt/etc/init.d/S80samba S98samba ,
+Note S98samba is important as this script must run last after boot.
+The drive /media/sda1 must already be mounted.
+
+10. S80samba writes a log to /tmp/nmbd.log to check what happend at boot.

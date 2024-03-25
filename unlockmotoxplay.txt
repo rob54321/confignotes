@@ -1,0 +1,3 @@
+# command to unlock bootloader on moto x play
+fastboot oem unlock NGZI7TZJ2R4EPXP7NVUA
+

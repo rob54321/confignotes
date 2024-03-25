@@ -1,0 +1,31 @@
+HOW TO ACCESS MYDEBIAN FROM A NEW COMPUTER OR NEW DISTRIBUTION
+
+ON THE COMPUTER WHERE THE MYDEBIAN WAS UPDATED
+
+mydebian must be signed again, create the InRelease and Release files
+for each distribution that was updated.
+if the gpg key exists and the keyFile still exists
+
+then run signmydebian -u | -c | -d | -r
+for ubuntu, common, debian or raspbian.
+
+
+cd /mnt/hdext/mydebian/dists/ubuntu or common or debian etc
+gpg --clearsign -o InRelease Release
+gpg -abs -o Release.gpg Release
+
+if the key does not exist such as a new install of linux
+then a new gpg key will have to be generated for signing
+gpg --gen-key
+
+gpg --list-keys to give keyid
+gpg --output /mnt/hdext/mydebian/keyFile --armor --export keyid
+apt-key add keyFile
+then sign as above.
+
+ON THE COMPUTER WHERE MYDEBIAN IS BEING USED
+if mydebian was updated and resigned
+then on the computer using mydebian
+apt-key add /pathto/keyFile
+apt-get update
+

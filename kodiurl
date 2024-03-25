@@ -1,0 +1,7 @@
+#!/bin/bash
+# script to add kodi repository for raspberry pi.
+# works with jessie on raspberry pi
+
+echo 'deb http://pipplware.pplware.pt/pipplware/dists/jessie/main/binary /' | sudo tee --append /etc/apt/sources.list.d/pipplware_jessie.list
+
+wget -O - http://pipplware.pplware.pt/pipplware/key.asc | sudo apt-key add -

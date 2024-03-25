@@ -1,0 +1,4 @@
+Eclipse using svn will not work as a shared library will not be found.
+A link must be made for the library in /usr/lib.
+
+

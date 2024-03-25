@@ -1,0 +1,106 @@
+How to congiure apache2 so that apache2 -M does not give errors.
+how to configure cgi on the raspberry pi with apache2
+
+set the following environment variables in /usr/local/bin/myenvironment:
+
+# for apache2 don't know why this is necessary
+export APACHE_LOCK_DIR=/var/lock/apache2
+export APACHE_RUN_USER=www-data
+export APACHE_RUN_GROUP=www-data
+export APACHE_LOG_DIR=/var/log/apache2
+export APACHE_PID_FILE=/var/run/apache2/apache2.pid
+export APACHE_RUN_DIR=/var/run/apache2
+
+2. Edit /etc/apache2/apache2.conf to include the line "Servername localhost" under global config.
+
+# Global configuration
+#
+Servername localhost
+#
+# ServerRoot: The top of the directory tree under which the server's
+# configuration, error, and log files are kept.
+
+3. Then enable modules:
+a2enmod php5 cgid rewrite
+
+configuring for cgid
+to enable shutdown to work the web server must be able to execute shutdown without a password.
+
+edit the sudoes file with
+
+visudo
+then add the lines to the end of the file
+
+www-data ALL=NOPASSWD:/sbin/shutdown
+robert ALL=NOPASSWD:/sbin/shutdown
+
+the web server runs as wwww-data.
+
+now write the reboot file:
+which must have execute permissions (chmod 755 /usr/local/bin/reboot)
+#!/bin/bash
+
+sudo /sbin/shutdown -r now
+
+Now control.cgi can call reboot or shut (for shutdown)
+/usr/local/bin/shut is
+#!/bin/bash
+sudo /sbin/shutdown -h now
+
+The /var/www/index.html file:
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>
+				rpi Control
+		</title>
+	</head>
+	<body>
+		<h1 align=center>Information for host rpi</h1>
+		<form method="GET" action="cgi-bin/control.cgi">
+			<INPUT type="submit" value="Mount abm" name="mount"></IFRAME>
+			<INPUT type="submit" value="Umount abm" name="umount"></IFRAME>
+			<INPUT type="submit" value="Reboot" name="reboot"></input>
+			<INPUT type="submit" value="Shutdown" name="shutdown"></input>
+		</form>
+		
+		<IFRAME src="cgi-bin/meminfo.cgi" width="600" height="250"></IFRAME>
+		<IFRAME src="cgi-bin/diskinfo.cgi" width="600" height="250"> </IFRAME>
+		<IFRAME src="cgi-bin/networkinfo.cgi" width="600" height=310"> </IFRAME>
+		<IFRAME src="cgi-bin/cpuinfo.cgi" width="600" height=310"> </IFRAME>
+		<IFRAME src="cgi-bin/userinfo.cgi" width="600" height=150"> </IFRAME>
+	</body>
+</html>
+
+The /usr/lib/cgi-bin/control.cgi file
+#!/bin/bash
+echo "Content-type: text/html"
+echo ""
+echo "<html><head><title>control.cgi</title></head><body>"
+echo "<p>${QUERY_STRING}</p>"
+if [ ${QUERY_STRING} == "reboot=Reboot" ]
+then
+	echo "going to reboot"
+	echo
+	/usr/local/bin/reboot
+	exit 0
+elif [ ${QUERY_STRING} == "umount=Umount+abm" ]
+then
+	if [ -d "/mnt/abm/backups/flo" ]
+	then
+		umount /mnt/abm
+	fi
+elif [ ${QUERY_STRING} == "mount=Mount+abm" ]
+then
+	if [ ! -d "/mnt/abm/backups/flo" ]
+	then
+		mount /mnt/abm
+	fi
+else
+	echo "shutting down...."
+	/usr/local/bin/shut
+	exit 0
+fi
+echo "</body></html>"
+
+Note The environment variable VISUAL=/usr/bin/nano

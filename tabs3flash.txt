@@ -1,0 +1,55 @@
+Flash stock rom.
+1. set tablet in download mode, home+vol down+ power
+
+2. odin set with BL AP CL CSC/CSC-HOME
+   CSC-HOME does not wipe data
+3. leave auto reboot on 
+
+
+Instructions on how to flash twrp and magisk to Samsung galaxy Tab S3
+
+1. backup all data using smart switch to local sd card
+MAKE SURE BOOTLOADER IS UNLOCKED, USB DEBUGGING ENABLED
+
+2. on pc use odin to flash twrp
+
+3. in odin use AP to load twrpxxx.tar
+
+4. turn off auto-reboot in odin
+
+5. connect tablet  and start download mode, from off
+   push home + vol down + power until it boots,
+   then push vol up to continue.
+
+6. make sure tablet is connected to odin
+
+7. click start
+
+8. wait for "pass" on display.
+
+9. reboot tablet into recovery, hold vol up + home + power
+   to boot into twrp
+
+10. in twrp format data and reboot into recovery
+
+11. wipe the tablet
+
+12. install magisk 21.3
+
+13. reboot tablet system
+
+14. go through initialisation, not necessary to setup accounts.
+
+15. install magisk 21.3 app
+
+16. in magisk upgrade app to 25.2
+
+17. in magisk upgrade zip to 25.2
+
+18. set zygisk on in magisk
+
+19. in play store settings -> update play store
+    first says not certified, after update it is certifed
+    does not depend on pin or finger prints for certification.
+
+

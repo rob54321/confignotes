@@ -1,0 +1,40 @@
+# to install virtual box from the original repositories
+
+Debian-based Linux distributions
+
+Add the following line to your /etc/apt/sources.list. According to your distribution, replace '<mydist>' with 'artful', 'zesty', 'yakkety', 'xenial', 'trusty', 'stretch', 'jessie', or 'wheezy' (older versions of VirtualBox supported different distributions):
+
+deb https://download.virtualbox.org/virtualbox/debian <mydist> contrib
+
+The Oracle public key for apt-secure can be downloaded
+
+    here for Debian 8 ("Jessie") / Ubuntu 16.04 ("Xenial") and later
+    here for older distributions. 
+
+You can add these keys with
+
+sudo apt-key add oracle_vbox_2016.asc
+sudo apt-key add oracle_vbox.asc
+
+or combine downloading and registering:
+
+wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
+wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
+
+The key fingerprint for oracle_vbox_2016.asc is
+
+B9F8 D658 297A F3EF C18D  5CDF A2F6 83C5 2980 AECF
+Oracle Corporation (VirtualBox archive signing key) <info@virtualbox.org>
+
+The key fingerprint for oracle_vbox.asc is
+
+7B0F AB3A 13B9 0743 5925  D9C9 5442 2A4B 98AB 5139
+Oracle Corporation (VirtualBox archive signing key) <info@virtualbox.org>
+
+(As of VirtualBox 3.2, the signing key was changed. The old Sun public key for apt-secure can be downloaded  here.)
+
+To install VirtualBox, do
+
+sudo apt-get update
+sudo apt-get install virtualbox-5.2
+

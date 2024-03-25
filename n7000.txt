@@ -1,0 +1,20 @@
+How to root the samsung galaxy note
+
+install kingroot 4.5.2 and root device. It works.
+
+install MobileOdinlite 4.20
+install mobileOdin_Flaskernel_N7000-v3.0.apk
+
+Use MobileOdinLite to flash philz-cwm6-XXLSZ-OXA-4.93.tar.md5
+which contains cwm6.
+
+Boot into recovery by switching off, then hold home plus volume+ and push the power button.
+Check that it works.
+
+Reboot phone and remove kingroot, do a full unroot.
+
+Boot into recovery with phone connected to pc and adb reboot recovery.
+
+Install superuser-2.46.zip
+
+Install chainfire su app.

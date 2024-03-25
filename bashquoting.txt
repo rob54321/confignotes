@@ -1,0 +1,57 @@
+how to quote especially for $' variable when
+using perl -e '   ' to run a programme.
+Bash interprets the line before perl gets it.
+In order to use $' variable use the bash quoting $' .... '
+as follows
+
+perl -e $' use strict;
+           use warnings;
+           "this is a string =~ /is/;
+           print "before = :$`: match = :$&: after = :$\':\n"; '
+
+using "" to quote then \" must be use for inside quotes
+
+perl -e "  use strict;
+	   use warnings;
+	   \"this is a string\" =~ /is/;
+	   print \"before = :$\`: match = :$&: after = :$':\n\"; "
+	   
+for pattern with meta characters use $pattern = \'pattern\'
+or $pattern = \'\w$\' works inside $'..' when passing through bash
+
+perl -e $' use strict;
+           use warnings;
+           my $pattern = \'\w$\';
+           my $string = "this is a string";
+           my $match = $string =~ /$pattern/;
+           $match ? print "before = :$`: match = :$&: after = :$\':\n": print "no match\n"; '
+
+patterns could be \'(aa){3,4}\' , \'anything\' inside of $'  ' when passing through bash
+
+passing a pattern from bash command line as a 
+command line argument
+
+try.pl $'aaa'
+
+try.pl $'i{2}'
+
+try.pl $'\\baaa\w'
+
+$' ' will all through except \a \b \cX (control X) \e \E \f \n \r \t \v
+so they must be escaped with \ to be passed litteraly.
+
+$'\\ba word or (so)${3,5}'
+
+passing command line argument for pattern in perl -e $'  ' -- arg1 arg2 ..
+
+perl -e $' use strict;
+           use warnings;
+           my $pattern = $ARGV[0];
+           my $string = "this is a string";
+           my $match = $string =~ /$pattern/;
+           $match ? print "before = :$`: match = :$&: after = :$\':\n": print "no match\n"; ' -- $'\\bis'
+
+in the pattern \b is escaped \\b because it is the bell character for bash
+chars that must be escaped in the pattern
+\a \b \cX \e \E \f \n \r \t \v since they are for bash in a $'  ' quoting scheme
+

@@ -1,0 +1,17 @@
+How to install Ralink 5370 wifi adaptor.
+AusPi adaptor.
+
+create /etc/udev/rules.d/95-RT5370.rules
+containing:
+
+SUBSYSTEM=="usb", ATTR{idVendor}=="148f", ATTR{idProduct}=="5370", RUN="/etc/RT5370.sh"
+
+Also create /etc/RT5370.sh 
+containing:
+
+#!/bin/bash
+modprobe rt2800usb
+echo 148F 5370 > /sys/bus/usb/drivers//rt2800usb/new_id
+
+It works with Ubuntu 19.04
+

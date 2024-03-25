@@ -1,0 +1,125 @@
+How to manually create a linux respository for amd64 i386 arhmhf
+The package builddebiantree does this.
+
+install dpkg-dev apt-utils
+
+#######################
+directory structure:
+#######################
+/mnt/cruc/debianh/dists/home/main/
+                                 binary-amd64
+                                 binary-i386
+                                 binary-armhf
+/mnt/cruc/debianh/pool
+          for all the deb files. There can be optional sub directories
+          all amd64, i386 and armhf deb files can be lumped here together.
+
+######################
+create the 3 package files
+######################
+by:
+cd /mnt/cruc/debianh
+apt-ftparchive -a amd64 -c=apt-ftparchive-home.conf packages pool > dists/home/main/binary-amd64/Packages
+apt-ftparchive -a i386 -c=apt-ftparchive-home.conf packages pool > dists/home/main/binary-i386/Packages
+apt-ftparchive -a armhf -c=apt-ftparchive-home.conf packages pool > dists/home/main/binary-armhf/Packages
+
+Note: the config file is not necessary for packages only when the release file is generated.
+
+for each Packages file create .gz and bzip2
+in the respective directories
+gzip -k Packages
+bzip2 -k Packages
+
+#####################
+create the release file
+#####################
+cd /mnt/cruc/debianh/dists/home/
+
+apt-ftparchive -c=apt-ftparchive-home.conf release . > Release
+
+this file contains all three architectures amd64, i386 and armhf
+the config file may need a full name path.
+
+#####################
+apt-ftparchive-home.config
+#####################
+
+APT::FTPArchive::release
+{
+   // set specific fields in the generated Release file
+   Architectures "amd64 i386 armhf";
+   Codename "home";
+   Components "main";
+   Description "My archive for ubuntu and raspberry pi";
+   Label "Home";
+   Origin "Home";
+   Signed-by "robertkey@mighty.co.za";
+   Suite "stable";
+   Version "1.00";
+};
+
+###########################
+gpg key management
+###########################
+A debian archive is signed with a secret key
+Debian packages are installed using the public key
+
+to generate a secret key for signing. Only need after a new install or key lost:
+gpg --gen-key
+
+to list the public keys:
+gpg --list-keys
+
+to list the secret keys:
+gpg --list-secret-keys
+
+to add the key to apt so archives can be installed:
+
+gpg --output /mnt/cruc/debhome/keyFile --armor --export 454B7A99
+where 454B7A99 are the last 8 hex digits of the fingerprint. Obtained by doing gpg --list-keys
+This is the keyid
+This only exports the public key. It cannot be used to sign the archive only
+to access the archive
+
+to import the public key to be able to use archives:
+apt-key add /mnt/cruc/debhome/keyFile
+
+to backup the secret key:
+gpg --output /mnt/cruc/debhome/secretkey.gpg --export --export-options backup
+is used to export the secret key.
+It will ask for the passphrase
+
+to import the secret key for signing:
+gpg --import /mnt/cruc/debhome/secretkey.gpg 
+It will ask for the passphrase
+This can be done so the archive can be signed on different machines.
+
+example: gpg --list-keys
+
+/root/.gnupg/pubring.kbx
+------------------------
+pub   rsa3072 2020-06-23 [SC] [expires: 2022-06-23]
+      1946E10B37F16E07804F11CA73FA4DEB454B7A99
+uid           [ultimate] Robert Key <robkey54321@gmail.com>
+sub   rsa3072 2020-06-23 [E] [expires: 2022-06-23]
+
+The keyid is 454B7A99
+the last 8 digits of the fingerprint.
+
+####################################
+to sign the archive
+####################################
+#!/bin/bash
+# for home archive
+cd /mnt/cruc/debhome/dists/home
+gpg --clearsign -o InRelease Release
+gpg -abs -o Release.gpg Release
+
+###################################
+edit /etc/apt/sources.list
+###################################
+add the line
+deb file:///mnt/hdd/debhome home main
+
+Note apt-get only reads the correct architecture files for the system.
+So having one Release file for the architectures amd64, i386 and armhf is fine.
