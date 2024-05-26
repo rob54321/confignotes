@@ -4,3 +4,37 @@ sudo apt install perl-tk libdevel-ptkdb-perl
 
 to run the debugger
 perl -d:ptkdb programme.pl
+
+
+############################################
+ to change the fonts in perl tk debugger
+############################################
+
+edit the file ~/.Xresourses to contain:
+
+ptkdb.frame2.frame1.rotext.balloon.background: green
+ptkdb.frame2.frame1.rotext.balloon.font: fixed 16                       /* Hot Variable Balloon Font */
+    
+    
+ptkdb.frame*font: fixed 14                           /* Menu Bar */
+ptkdb.frame.menubutton.font: fixed 14                /* File menu */
+ptkdb.frame2.frame1.rotext.font: fixed 16            /* Code Pane */
+ptkdb.notebook.datapage.frame1.hlist.font: fixed 16  /* Expression Notebook Page */
+    
+ptkdb.notebook.subspage*font: fixed 16               /* Subroutine Notebook Page */
+ptkdb.notebook.brkptspage*entry.font: fixed 14      /* Delete Breakpoint Buttons */
+ptkdb.notebook.brkptspage*button.font: fixed 14     /* Breakpoint Expression Entries */
+ptkdb.notebook.brkptspage*button1.font: fixed 14    /* Breakpoint Expression Entries */
+ptkdb.notebook.brkptspage*checkbutton.font: fixed 14 /* Breakpoint Checkbuttons */
+ptkdb.notebook.brkptspage*label.font: fixed 14      /* Breakpoint Checkbuttons */
+    
+ptkdb.toplevel.frame.textundo.font: fixed 14        /* Eval Expression Entry Window */
+ptkdb.toplevel.frame1.text.font: fixed 14           /* Eval Expression Results Window */
+ptkdb.toplevel.button.font:  fixed 14               /* "Eval..." Button */
+ptkdb.toplevel.button1.font: fixed 14               /* "Clear Eval" Button */
+ptkdb.toplevel.button2.font: fixed 14               /* "Clear Results" Button */
+ptkdb.toplevel.button3.font: fixed 14               /* "Clear Dismiss" Button */
+
+Documentation is in the module /usr/share/perl5/Devel/ptkdb.pm
+
+Then run xrdb -override ~./Xresources in x windows
