@@ -9,6 +9,11 @@ perl -e $' use strict;
            "this is a string =~ /is/;
            print "before = :$`: match = :$&: after = :$\':\n"; '
 
+Note: split function can also be used to get individual fields
+eg my $string = /address1/address2/ig; @list = split /\/, $string; shift @list;
+  then @list = address1 address2 ig
+
+
 using "" to quote then \" must be use for inside quotes
 
 perl -e "  use strict;
