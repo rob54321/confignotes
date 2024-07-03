@@ -1,0 +1,23 @@
+overclock:
+edit /boot/firmware/config.txt
+at end add
+
+arm_freq=3000
+gpu_freq=1000
+over_voltage_delta=50000
+
+# for max clock always on
+force_turbo=1
+
+
+When you are ready… These are the settings I have used.
+this means at 35c the fan will run at 175 until temp drops 5c.
+I have played with this a lot over the last few days,
+this I found keeps my pi5 around 35c all the time
+with very little to no fan noise
+
+# temp is 1000 x celsius
+dtparam=fan_temp0=35000
+dtparam=fan_temp0_hyst=5000
+# speed from 8 to 240
+dtparam=fan_temp0_speed=175
