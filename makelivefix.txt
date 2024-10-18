@@ -1,0 +1,18 @@
+How to fix the building of makelive.pl post version 23.10
+
+The file /mnt/LINUXLIVE/EFI/BOOT/grubx64.efi has changed and
+does not work. When grub boots it simply goes to a text
+console.
+
+The file grubx64.efi (size 2.2M) from a previous version
+works.
+
+To fix the live system replace grubx64.efi with an older one.
+
+/mnt/ad64/debhome/grubx64.efi -> /mnt/LINUXLIVE/EFI/BOOT
+
+The file file /usr/lib/grub/x86_64-efi/monolithic/grubx64.efi exists on host
+it belongs to package grub-efi-amd64-bin
+
+makelive.pl will be modified to copy grubx64.efi from /mnt/ad64
+to the live system just after grub has been installed on the live system.
