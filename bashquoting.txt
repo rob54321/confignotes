@@ -49,6 +49,9 @@ $'\\ba word or (so)${3,5}'
 
 passing command line argument for pattern in perl -e $'  ' -- arg1 arg2 ..
 
+# to pass ticks ' inside of $' '
+perl -e $'my @list = `dpkg-query -W -f \'\${Version}\n\' linux-image*`; print @list;'
+
 perl -e $' use strict;
            use warnings;
            my $pattern = $ARGV[0];
