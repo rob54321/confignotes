@@ -1,0 +1,34 @@
+How to make a chroot environment bootable
+
+mount /mnt/team
+mount /mnt/team/boot/efi
+
+debootstrap noble /mnt/team http://ubuntu.mirror.ac.za
+
+bind proc sys tmp dev/pts dev
+
+chroot to /mnt/team
+apt install nano
+
+edit /etc/apt/sources.list to contain
+ add to end of line: multiverse universe restricted
+
+apt update
+install linux-image-generic linux-headers-generic
+
+set root passwd
+
+edit /etc/fstab in chroot
+LABEL=team / ext4 defaults 0 1
+
+add user robert
+adduser --add-extra-groups --home /home/robert robert
+install grub2-common grub-efi-amd64 grub-efi-amd64-signed network-manager iputils-ping openssh-server coreutils net-tools
+update-grub
+
+exit chroot
+
+unbindall -b /mnt/team
+
+grub-install --root-directory=/mnt/team /dev/sdb
+
