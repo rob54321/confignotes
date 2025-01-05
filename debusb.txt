@@ -5,30 +5,89 @@ mount /mnt/team/boot/efi
 
 debootstrap noble /mnt/team http://ubuntu.mirror.ac.za
 
+# append updates, secrurity, backports, proposed to sources.list
+
+# to setup debhome and svn repository.
+# copy debhomepubkey.asc to /etc/apt/keyrings/
+# copy debhome.sources to /etc/apt/sources.list.d/
+# make directories if necessary
+
+# edit fstab
+
 bind proc sys tmp dev/pts dev
 
 chroot to /mnt/team
-apt install nano
 
-edit /etc/apt/sources.list to contain
- add to end of line: multiverse universe restricted
+##############################################################################################
+# start of chrootinstall script which is run in the chroot environment
+##############################################################################################
+# make user robert
+adduser --add-extra-groups --comment "robert key room103 0219596081 0218551556 nothing" robert
 
+# add robert to sudo group
+adduser robert sudo
+
+# make directory to mount ad64 in the chroot environment
+test -d /mnt/ad64 || mkdir -p /mnt/ad64
+# set ownership of ad64
+chown robert:robert /mnt
+
+#set links for debhome and svn
+ln -s /mnt/ad64/debhome /mnt/debhome
+ln -s /mnt/ad64/svn /mnt/svn
+
+# mount ad64 in chroot environment
+mount -L ad64
+chown robert:robert /mnt/ad64
+chown robert:robert -h /mnt/debhome /mnt/svn
+
+# update in the change root environment and upgrade
 apt update
-install linux-image-generic linux-headers-generic
+apt full-upgrade -y
 
-set root passwd
+# install image and essential networking stuff
+apt install linux-image-generic linux-headers-generic xz-utils subversion git nano gh rclone coreutils network-manager grub2-common grub-efi-amd64 grub-efi-amd64-signed net-tools iputils-ping openssh-server fdisk mtools ntfs-3g dosfstools parted -y
 
-edit /etc/fstab in chroot
-LABEL=team / ext4 defaults 0 1
 
-add user robert
-adduser --add-extra-groups --home /home/robert robert
+# install config data for git rclone gh
+# and pubkey, sudo robert, debhome.sources
+# configdata needs xz-utils
+# user robert must exist
+# cp -v /mnt/debhome/pool/myown/c/configdata/configdata*.deb /mnt/team/usr/local/bin/
+#chroot /mnt/team dpkg -i /usr/local/bin/configdata_1.0.9_amd64.deb
+# install confgdata
+# dependency is xz-utils
+apt install configdata builddebiantree initialise-linux -y
+
+#set root password
+passwd
+
 install grub2-common grub-efi-amd64 grub-efi-amd64-signed network-manager iputils-ping openssh-server coreutils net-tools
 update-grub
 
 exit chroot
-
+##########################################################################################################################
+# end of chroot install script
+##########################################################################################################################
 unbindall -b /mnt/team
 
-grub-install --root-directory=/mnt/team /dev/sdb
+# make /boot/grub if it does not exist
+test -d /mnt/team/boot/grub || mkdir -p /mnt/team/boot/grub
 
+# create empty /mnt/team/boot/grub/custom.cfg
+echo "# custom.cfg" > /mnt/team/boot/grub/custom.cfg
+
+# edit custom.cfg for grub
+sed -i -e 'a\set menu_color_normal=white/blue \
+set menu_color_highlight=red/light-gray \
+set color_normal=yellow/blue \
+set color_hightlight=red/black' /mnt/team/boot/grub/custom.cfg
+
+grub-install --root-directory=/mnt/team /dev/sdX
+
+bindall
+chroot /mnt/team update-grub
+
+# umount ad64
+chroot /mnt/team umount /mnt/ad64
+unbindall
