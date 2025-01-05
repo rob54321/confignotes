@@ -59,6 +59,10 @@ apt install linux-image-generic linux-headers-generic xz-utils subversion git na
 # dependency is xz-utils
 apt install configdata builddebiantree initialise-linux -y
 
+# for x windows and ubuntu-mate
+# ubuntu-install can be installed
+apt install ubuntu-install -y
+
 #set root password
 passwd
 
