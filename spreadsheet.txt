@@ -1,3 +1,5 @@
+install libreoffice-gtk3 so that menus fonts are set by xwindows ui
+
 to enter a reference to a cell in 
 another spreadsheet where the name
 is kept in cell A23.
