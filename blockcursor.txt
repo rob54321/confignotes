@@ -1,0 +1,6 @@
+To set a block cursor in ubuntu linux and raspberry pi
+use vt.cur_default=8 on the linux boot command line.
+Set it in default/grub and then run update-grub.
+
+The cursor is set to a block in all console applications
+like nano as well.
