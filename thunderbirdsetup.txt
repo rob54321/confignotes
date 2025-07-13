@@ -4,28 +4,6 @@ format 13 July 2025 etc.
 sudo apt update
 sudo apt install thunderbird-locale-en
 
-Create a Custom Launcher for Thunderbird This lets you
- launch Thunderbird with a specific locale:
-
- cp /usr/share/applications/thunderbird.desktop ~/.local/share/applications/
-
-Then edit the copied file:
-
-nano ~/.local/share/applications/thunderbird.desktop
-
-Find the line that starts with Exec= and change it to:
-Exec=env LANG=en_ZA.UTF-8 thunderbird %u
-
-Save and close the file. This ensures Thunderbird
- launches with the South African English locale.
-
-Verify Locale Availability
- You can check if en_ZA.UTF-8 is available on your system:
-locale -a | grep en_ZA
-
-f it’s missing, generate it:
-sudo locale-gen en_ZA.UTF-8
-sudo update-locale
 
 Optional: Set Locale via Terminal Launch
  You can also launch Thunderbird directly with the locale:
@@ -60,3 +38,18 @@ HH:mm
 
 Restart thunderbird for changes to take place.
 
+To fix the locale settings to English South Africa
+copy the menu/internet/thunderbird icon to the task bar.
+Right click on the taskbar icon and select properties.
+Edit the properties command to :
+ Command: env LANG=en_ZA.UTF-8 /snap/bin/thunderbird %u
+
+ Then it is not necessary to edit thunderbird.desktop.
+ 
+Verify Locale Availability
+ You can check if en_ZA.UTF-8 is available on your system:
+locale -a | grep en_ZA
+
+f it’s missing, generate it:
+sudo locale-gen en_ZA.UTF-8
+sudo update-locale
