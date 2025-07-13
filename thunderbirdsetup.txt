@@ -1,0 +1,62 @@
+Set up thunderbird with correct locale and date
+format 13 July 2025 etc.
+
+sudo apt update
+sudo apt install thunderbird-locale-en
+
+Create a Custom Launcher for Thunderbird This lets you
+ launch Thunderbird with a specific locale:
+
+ cp /usr/share/applications/thunderbird.desktop ~/.local/share/applications/
+
+Then edit the copied file:
+
+nano ~/.local/share/applications/thunderbird.desktop
+
+Find the line that starts with Exec= and change it to:
+Exec=env LANG=en_ZA.UTF-8 thunderbird %u
+
+Save and close the file. This ensures Thunderbird
+ launches with the South African English locale.
+
+Verify Locale Availability
+ You can check if en_ZA.UTF-8 is available on your system:
+locale -a | grep en_ZA
+
+f it’s missing, generate it:
+sudo locale-gen en_ZA.UTF-8
+sudo update-locale
+
+Optional: Set Locale via Terminal Launch
+ You can also launch Thunderbird directly with the locale:
+bash
+LANG=en_ZA.UTF-8 thunderbird
+
+Force Thunderbird to Use South African Date Format
+
+Thunderbird sometimes defaults to US-style MM/DD/YYYY even with en-ZA,
+ so you can explicitly define the format using its Config Editor:
+
+    Open Thunderbird’s Config Editor
+
+        Go to ≡ Menu > Settings > General
+
+        Scroll to the bottom and click Config Editor
+
+    Create Custom Date Format Preferences In the search box, type:
+intl.date_time.pattern_override.date_short
+Click the + button to add it as a String
+
+Set the value to:
+dd/MM/yyyy or dd MMM yyyy for 07 July 2025 etc
+
+Repeat for time format:
+
+intl.date_time.pattern_override.time_short
+
+Set the value to
+
+HH:mm
+
+Restart thunderbird for changes to take place.
+
