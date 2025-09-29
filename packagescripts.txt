@@ -26,10 +26,10 @@ Purging a package
 	postrm purge
 
 Upgrading / full-upgrade a package
-	prerm upgrade
-	preinst upggrade
-	postrm upgrade
-	postinst configure
+	prerm upgrade (old prerm)
+	preinst upggrade (old preinst)
+	postrm upgrade (new postrm)
+	postinst configure (new postinst)
 
 Reinstall a package
 	prerm upgrade
