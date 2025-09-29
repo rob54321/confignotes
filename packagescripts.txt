@@ -9,6 +9,7 @@ these scripts are called with name $1 $2 parameters.
 Sometimes only $1.
 
 Values for $1 configure, remove, purge, upgrade and install
+The second parameter $2 is the version of the old or new package.
 
 Installing a package:
 
@@ -24,7 +25,7 @@ Purging a package
 	postrm remove
 	postrm purge
 
-Upgrading a package
+Upgrading / full-upgrade a package
 	prerm upgrade
 	preinst upggrade
 	postrm upgrade
