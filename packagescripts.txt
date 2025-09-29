@@ -1,0 +1,37 @@
+Documentation on the package maintenance scripts
+postinst
+preinst
+postrm
+prerm
+
+When a package is installed / removed / purged / upgraded
+these scripts are called with name $1 $2 parameters.
+Sometimes only $1.
+
+Values for $1 configure, remove, purge, upgrade and install
+
+Installing a package:
+
+	preinst install
+	postinst configure
+
+Removing a package
+	prerm remove
+	postrm remove
+
+Purging a package
+	prerm remove
+	postrm remove
+	postrm purge
+
+Upgrading a package
+	prerm upgrade
+	preinst upggrade
+	postrm upgrade
+	postinst configure
+
+Reinstall a package
+	prerm upgrade
+	preinst upggrade
+	postrm upgrade
+	postinst configure
