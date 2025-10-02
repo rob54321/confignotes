@@ -36,3 +36,9 @@ Reinstall a package
 	preinst upggrade
 	postrm upgrade
 	postinst configure
+
+In summary scripts are with the following parameters:
+	preinst  install/upgrade
+	postinst configure
+	prerm    remove/upgrade
+	postrm   remove/purge/upgrade
