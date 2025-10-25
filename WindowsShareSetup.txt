@@ -1,0 +1,84 @@
+# Instructions on how to setup Windows file shareing for Windows 11.
+
+The server is THINKBOOK.
+The client is Asus.
+
+On the THINKBOOK.
+
+Here’s a complete and precise list of the settings you changed on the **ThinkBook server** to allow **Lynn (via the LynnP account)** to access the share `\\thinkbook\Users` from another computer on your home network. This is formatted for easy pasting into your `configfiles` directory:
+
+---
+
+## 🖥️ ThinkBook SMB Share Access Configuration for Lynn
+
+### ✅ Share Setup
+- Shared folder: `C:\Users`
+- Share name: `Users`
+- Share permissions:  
+  - Added `smbuser` with **Read/Write** access  
+  - Allowed **Everyone** (optional, for guest fallback)
+
+---
+
+### 🔐 Local User Creation
+Created a dedicated local user for SMB access:
+```powershell
+net user smbuser MySecurePassword123 /add
+```
+
+---
+
+### 📁 NTFS Permissions
+- Right-click `C:\Users` → Properties → **Security** tab
+- Added `smbuser` with **Read/Write** permissions
+
+---
+
+### 🛡️ Registry Setting
+Enabled insecure guest access:
+- Path:  
+  `HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters`
+- Value:  
+  `AllowInsecureGuestAuth` = `1` (DWORD)
+
+---
+
+### 🧰 Group Policy (gpedit.msc)
+- Path:  
+  `Computer Configuration → Administrative Templates → Network → Lanman Workstation`
+- Setting:  
+  **Enable insecure guest logons** → `Enabled`
+
+---
+
+### 🔐 Local Security Policy (secpol.msc)
+- Path:  
+  `Local Policies → Security Options`
+- Set the following:
+  - **Accounts: Guest account status** → `Enabled`
+  - **Network access: Let Everyone permissions apply to anonymous users** → `Enabled`
+  - **Network access: Sharing and security model for local accounts** → `Guest only – local users authenticate as Guest`
+
+---
+
+### 🧪 Access Method from Client (LynnP)
+Mapped the share using named user authentication:
+```cmd
+net use \\thinkbook\Users /user:thinkbook\smbuser MySecurePassword123
+```
+
+---
+
+Also in settings on the thinkbook:
+WiFi must be a private network
+
+Settings -> network & internet -> advanced network settings -> private networks -> all on
+                                                               public networks -> both off
+                                                               All neworks ->
+                                                               public sharing on
+                                                               password protected sharing off
+                                                               
+
+On the Asus
+Make a Lynn administrator account (not microsoft) 
+
