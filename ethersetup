@@ -1,0 +1,18 @@
+#!/bin/bash
+# to bring up the ethernet connection in a live system
+# for ubuntu mate 25.10
+# edit nano /etc/NetworkManager/NetworkManager.conf
+#	change [ifupdown]
+#	managed = false
+#
+#	to managed = true
+# save file.
+stedit.pl -f /etc/NetworkManager/NetworkManager.conf -s /managed=false/managed=true/ -o -w
+
+# restart network manager
+systemctl restart NetworkManager
+
+# add alias name
+nmcli connection add type ethernet ifname enp14s0 con-name wired-enp14s0
+# bring the connection up
+nmcli connection up wired-enp14s0
