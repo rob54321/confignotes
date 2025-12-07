@@ -1,0 +1,15 @@
+# how to add the brother network printer to raspberry pi
+
+open the webpage http://localhost:631
+
+login with robert coahtr
+
+choose administration
+click find new printers 
+from the list click "Add this printer"
+might work with local and network printers.
+
+canon mf4150
+download linux-UFRII-drv-v620-m17n-20.tar.gz
+cd to linux-UFRII-drv-v620-m17n
+run sudo install.sh
