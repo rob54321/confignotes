@@ -7,3 +7,44 @@ It will prompt for a password.
 to mount a samba volume
 as root:
 mount.cifs //rpi/root /mnt/rpi -o user=robert,pass=coahtr,uid=robert,gid=robert
+
+
+Setup samba on rpi so my phone and other devices can access it
+install samba apt install samba
+setup a samba passwd sambapasswd -L -a robert
+edit /etc/samba/smb.conf
+only the [homes] section has to be edited
+
+only changes are
+browseable = no -> yes
+read only = yes -> no
+create mask = 0700 -> 0755
+directory mask = 0700 -> 0775
+
+#======================= Share Definitions =======================
+
+[homes]
+   comment = Home Directories
+   browseable = yes
+
+# By default, the home directories are exported read-only. Change the
+# next parameter to 'no' if you want to be able to write to them.
+   read only = no
+
+# File creation mask is set to 0700 for security reasons. If you want to
+# create files with group=rw permissions, set next parameter to 0775.
+   create mask = 0755
+
+# Directory creation mask is set to 0700 for security reasons. If you want to
+# create dirs. with group=rw permissions, set next parameter to 0775.
+   directory mask = 0775
+
+# By default, \\server\username shares can be connected to by anyone
+# with access to the samba server.
+# The following parameter makes sure that only "username" can connect
+# to \\server\username
+# This might need tweaking when using external authentication schemes
+   valid users = %S
+
+restart all services
+systemctl restart smbd nmbd samba smb
