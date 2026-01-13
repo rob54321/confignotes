@@ -1,0 +1,81 @@
+How to build a debian source package so it is installable.
+This is for navtive packages only. No upstream.
+
+Cheatsheet: Native Debian Package (hello.c)
+📂 Project Layout
+/home/robert/hello/
+  hello-1.0/
+    hello.c
+    Makefile
+    debian/
+      control
+      changelog
+      rules
+      source/format
+
+Makefile (minimal)
+all:
+	gcc -o hello hello.c
+
+install:
+	mkdir -p $(DESTDIR)/usr/bin
+	cp hello $(DESTDIR)/usr/bin/hello
+
+clean:
+    rm -f hello
+*****NOTE: NO SPACES, USE TABS ONLY*******************
+installs to /usr/bin/hello
+
+
+debian/control
+Source: hello
+Section: utils
+Priority: optional
+Maintainer: Robert <robert@example.com>
+Build-Depends: debhelper-compat (= 13), gcc, make
+Standards-Version: 4.6.2
+
+Package: hello
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Simple Hello World program
+ A minimal C program that prints "Hello, world!" to demonstrate Debian packaging.
+
+debian/changelog
+hello (1.0) unstable; urgency=medium
+
+  * Initial release.
+
+ -- Robert <robert@example.com>  Tue, 13 Jan 2026 12:45:00 +0200
+
+debian/rules
+
+#!/usr/bin/make -f
+
+%:
+	dh $@
+******NOTE: NO SPACES, USE TABS ONLY*******************
+
+debian/source/format
+3.0 (native)
+
+Build Commands
+
+cd /home/robert/hello/hello-1.0
+
+# Build source package (native)
+dpkg-buildpackage -us -uc -S
+
+# Build binary package
+dpkg-buildpackage -us -uc
+
+
+Outputs (in parent dir /home/robert/hello/)
+
+    hello_1.0.dsc
+
+    hello_1.0.tar.gz
+
+    hello_1.0_arm64.deb (or amd64.deb depending on system)
+
+

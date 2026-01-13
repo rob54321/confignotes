@@ -2,10 +2,11 @@
 # and run gpxsee on the raspberry pi
 
 sudo apt update
-sudo apt install build-essential cmake pkg-config \
+sudo apt install build-essential pkg-config \
     qtbase5-dev qttools5-dev-tools qt5-qmake \
     libqt5svg5-dev libqt5opengl5-dev \
-    zlib1g-dev libpng-dev libjpeg-dev libproj-dev
+    zlib1g-dev libpng-dev libjpeg-dev libproj-dev \
+    qtpositioning5-dev libqt5serialport5-dev
 
 sudo apt install libexif-dev libtiff-dev libgeos-dev
 
@@ -25,28 +26,40 @@ Once built, GPXSee requires the following runtime libraries
 sample control file with dependencies:
 
 Source: gpxsee
-Section: utils
+Section: myown
 Priority: optional
 Maintainer: Robert <your.email@example.com>
-Build-Depends: debhelper-compat (= 13),
-               qtbase5-dev,
-               qtbase5-private-dev,
-               qttools5-dev-tools,
-               qt5-qmake,
-               libqt5svg5-dev,
-               libqt5opengl5-dev,
-               libqt5serialport5-dev,
-               zlib1g-dev,
-               libpng-dev,
-               libjpeg-dev,
-               qtpositioning5-dev,
-               libproj-dev
+Depends: build-essential,
+		 pkg-config,
+		 libqt5core5a, 
+		 libqt5gui5, 
+		 libqt5widgets5, 
+		 libqt5svg5, 
+		 libqt5opengl5, 
+		 libqt5serialport5, 
+		 zlib1g, 
+		 libpng16-16, 
+		 libjpeg62-turbo,
+		qtbase5-private-dev,
+		qtbase5-dev,
+		qttools5-dev-tools, 
+		qt5-qmake,
+		libqt5svg5-dev, 
+		libqt5opengl5-dev, 
+		zlib1g-dev, 
+		libpng-dev, 
+		libjpeg-dev, 
+		libproj-dev,
+		libexif-dev, 
+		libtiff-dev, 
+		libgeos-dev, 
+		qtpositioning5-dev,
+		libqt5serialport5-dev
 Standards-Version: 4.6.0
 Homepage: https://www.gpxsee.org/
 
 Package: gpxsee
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Architecture: arm64
 Description: GPS log file viewer and analyzer
  GPXSee is a GPS log file viewer and analyzer that supports GPX, TCX,
  FIT, KML, IGC and NMEA files. It can display maps, statistics, graphs,
