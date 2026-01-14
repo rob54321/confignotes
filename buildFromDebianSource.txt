@@ -56,6 +56,17 @@ debian/rules
 	dh $@
 ******NOTE: NO SPACES, USE TABS ONLY*******************
 
+***** to use qmake before make ****************
+#!/usr/bin/make -f
+
+%:
+    dh $@
+
+override_dh_auto_configure:
+	qmake
+*******************************************************
+**********USE TABS, NOT SPACES IN debian/rules*********
+
 debian/source/format
 3.0 (native)
 
@@ -68,6 +79,10 @@ dpkg-buildpackage -us -uc -S
 
 # Build binary package
 dpkg-buildpackage -us -uc
+
+# to use 4 processors
+DEB_BUILD_OPTIONS=parallel=4 dpkg-buildpackage -us -uc
+
 
 
 Outputs (in parent dir /home/robert/hello/)
