@@ -1,0 +1,51 @@
+Fix: Wi‑Fi not working in Ubuntu MATE on Raspberry Pi 5
+
+Symptoms:
+
+    Wi‑Fi hardware works fine under Raspberry Pi OS (startx-rpi), but not under Ubuntu MATE.
+
+    wlan0 shows as DORMANT / NO-CARRIER.
+
+    No Wi‑Fi icon appears in the MATE panel.
+
+    dmesg shows brcmfmac: no txcap_blob available (err=-2) (harmless, not fatal).
+
+Cause:
+
+    Ubuntu MATE does not include the Network Manager panel applet by default.
+
+    Without it, wpa_supplicant runs but the interface is never
+     brought up or associated.
+
+Solution:
+
+1.    Install NetworkManager and the GNOME applet:
+sudo apt update
+sudo apt install network-manager network-manager-gnome
+
+2. enable and start the service:
+sudo systemctl enable NetworkManager
+sudo systemctl start NetworkManager
+
+3. Restart the X session so the panel reloads:
+sudo systemctl restart lightdm
+
+Add the applet to the panel if missing:
+
+    Right‑click the MATE panel → Add to Panel → choose Notification Area or Network Manager.
+
+    The Wi‑Fi icon should now appear.
+
+5. (Optional) Disable dhcpcd if it conflicts:
+sudo systemctl stop dhcpcd
+sudo systemctl disable dhcpcd
+
+Result:
+
+    Wi‑Fi icon appears in the MATE panel.
+
+    wlan0 transitions from DORMANT to UP once connected.
+
+    Wireless networks can be managed directly from the panel, just like in Raspberry Pi OS.
+
+
