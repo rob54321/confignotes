@@ -9,14 +9,22 @@ so it has the following partitions
 
 mount the iso image on say /mnt/cdrom
 mount the EFI partition LINUXLIVE on /mnt/LINUXLIVE.
-cd /mnt/cdrom
-cp -dR .disk * /mnt/LINUXLIVE
+
+cp -dR /mnt/cdrom /root/
+
 change mode of directories and files to writable
-cd /mnt/LINUXLIVE
+cd /root/cdrom
 find . -type f -exec chmod a+w {} \;
 find . -type d -exec chmod 755 {} \;
 
-edit /mnt/LINUXLIVE/boot/grub/grub.cfg to 
+###################################################
+# Note: copy macrium reflect files and media creation tool files BEFORE coping the iso image files to /mnt/LINUXLIVE.
+# The iso image file EFI/boot/bootx64.efi must NOT be overwritten by the one from macrium reflect
+###################################################
+
+####################################################
+# edit /root/cdrom/boot/grub/grub.cfg to 
+####################################################
 
 set timeout=30
 
@@ -27,7 +35,16 @@ set menu_color_highlight=red/white
 
 menuentry "Try or Install Ubuntu Cinnamon" {
     set gfxpayload=keep
-    linux  /casper/vmlinuz  --- username=robert hostname=live persistent persitent-path=/casper/
+
+	insmod part_gpt
+	insmod fat
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root  AED6-434E
+	else
+	  search --no-floppy --fs-uuid --set=root AED6-434E
+	fi
+
+    linux  /casper/vmlinuz  --- username=robert hostname=live persistent persistent-path=/casper/ noprompt
     initrd /casper/initrd
 }
 menuentry "Ubuntu Cinnamon (safe graphics)" {
@@ -35,6 +52,33 @@ menuentry "Ubuntu Cinnamon (safe graphics)" {
     linux  /casper/vmlinuz nomodeset  --- quiet splash
     initrd /casper/initrd
 }
+menuentry "Macrium Reflect rescue " {
+	insmod part_gpt
+	insmod fat
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root  AED6-434E
+	else
+	  search --no-floppy --fs-uuid --set=root AED6-434E
+	fi
+	chainloader /bootmgfw.efi
+	#chainloader /EFI/Boot/bootx64.efi
+}
+menuentry "Windows Media Creation Tool Recovery (Read the instructions on the next screen)" {
+	echo "You can use shift F10 for an administrator console"
+	echo "install.esd is in sources directory"
+	echo "You can hit escape to exit this message"
+	sleep -v -i 60
+	
+	insmod part_gpt
+	insmod fat
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root  2222-2222
+	else
+	  search --no-floppy --fs-uuid --set=root 2222-2222
+	fi
+	chainloader /bootmgfw.efi
+}
+
 grub_platform
 if [ "$grub_platform" = "efi" ]; then
 menuentry 'Boot from next volume' {
@@ -45,7 +89,23 @@ menuentry 'UEFI Firmware Settings' {
 }
 fi
 
+####################################################
+# end of grub.cfg
+####################################################
+
+Copy files for macrium reflect and media creation tool to the disk with
+makelive.pl -M -T
+
+###################################################
+# Note: copy macrium reflect files and media creation tool files BEFORE coping the iso image files to /mnt/LINUXLIVE.
+# The iso image file EFI/boot/bootx64.efi must NOT be overwritten by the one from macrium reflect
+###################################################
+
+mount /mnt/LINUXLIVE
+cd /root/cdrom
+cp -dR .disk * /mnt/LINUXLIVE/
 umount /mnt/LINUXLIVE
+umount /mnt/cdrom
 
 Now install grub, 
 grub-install --uefi-secure-boot --no-floppy --removable --target=x86_64-efi /dev/sda
