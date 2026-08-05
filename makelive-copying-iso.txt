@@ -45,6 +45,8 @@ menuentry 'UEFI Firmware Settings' {
 }
 fi
 
+umount /mnt/LINUXLIVE
+
 Now install grub, 
 grub-install --uefi-secure-boot --no-floppy --removable --target=x86_64-efi /dev/sda
 if LINUXLIVE is drive /dev/sda
