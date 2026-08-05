@@ -1,0 +1,51 @@
+How to make a live image by by copying the ubuntu***.iso image to a usb flash drive.
+
+partition the flash drive with makelive.pl -D 12
+so it has the following partitions 
+      1 . EFI/vfat for linux iso image and macrium reflect. Name is LINUXLIVE
+      2 microsoft basic data 8G for Microsoft repair tool
+      3 writable ext4 partion for persistence 10G
+      4 rest of disk ntfs for storage and backups.
+
+mount the iso image on say /mnt/cdrom
+mount the EFI partition LINUXLIVE on /mnt/LINUXLIVE.
+cd /mnt/cdrom
+cp -dR .disk * /mnt/LINUXLIVE
+change mode of directories and files to writable
+cd /mnt/LINUXLIVE
+find . -type f -exec chmod a+w {} \;
+find . -type d -exec chmod 755 {} \;
+
+edit /mnt/LINUXLIVE/boot/grub/grub.cfg to 
+
+set timeout=30
+
+loadfont unicode
+
+set menu_color_normal=white/blue
+set menu_color_highlight=red/white
+
+menuentry "Try or Install Ubuntu Cinnamon" {
+    set gfxpayload=keep
+    linux  /casper/vmlinuz  --- username=robert hostname=live persistent persitent-path=/casper/
+    initrd /casper/initrd
+}
+menuentry "Ubuntu Cinnamon (safe graphics)" {
+    set gfxpayload=keep
+    linux  /casper/vmlinuz nomodeset  --- quiet splash
+    initrd /casper/initrd
+}
+grub_platform
+if [ "$grub_platform" = "efi" ]; then
+menuentry 'Boot from next volume' {
+    exit 1
+}
+menuentry 'UEFI Firmware Settings' {
+    fwsetup
+}
+fi
+
+Now install grub, 
+grub-install --uefi-secure-boot --no-floppy --removable --target=x86_64-efi /dev/sda
+if LINUXLIVE is drive /dev/sda
+
