@@ -1,0 +1,14 @@
+How to start X manually if startx does not work
+
+Create the file ~/.xinitrc which must contain
+exec cinnamon-session
+
+as the last line.
+
+also exec gnome-session can be used
+
+Also if there is no ~/.xinitrc
+sudo systemctl start lightdm
+
+can be used or with a different display manager.
+gdm eg.
