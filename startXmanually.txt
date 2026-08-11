@@ -3,6 +3,9 @@ How to start X manually if startx does not work
 Create the file ~/.xinitrc which must contain
 exec cinnamon-session
 
+or
+exec gnome-session
+
 as the last line.
 
 also exec gnome-session can be used
@@ -11,4 +14,56 @@ Also if there is no ~/.xinitrc
 sudo systemctl start lightdm
 
 can be used or with a different display manager.
-gdm eg.
+gdm sddm lxdm xdm slim ly.
+
+their config files:
+/etc/gdm/custom.conf
+/etc/lightdm/lightdm.conf.d/lightdm.conf
+
+cat /etc/X11/default-display-manager gives the default display manager
+
+systemctl status display-manager.service
+will show which one is currently linked to
+display-manager.service
+
+sudo dpkg-reconfigure lightdm
+sudo systemctl restart lightdm
+
+or
+sudo dpkg-reconfigure gdm3
+sudo systemctl restart gdm3
+
+to disable
+sudo systemctl disable lightdm
+sudo systmctl enable gdm
+
+etc
+Also setup /etc/X11/xorg.conf.d/xorg.conf
+
+which contains:
+
+Section "Device"
+    Identifier "NvidiaCard0"
+    Driver "nvidia"
+EndSection
+
+Section "Monitor"
+    Identifier "Monitor0"
+EndSection
+
+Section "Screen"
+    Identifier "Screen0"
+    Device "NvidiaCard0"
+    Monitor "Monitor0"
+    DefaultDepth 24
+    SubSection "Display"
+        Depth 24
+        Modes "1920x1080"
+    EndSubSection
+EndSection
+
+Nivida proprietry drivers must be install
+check with 
+nvidia-smi
+
+
