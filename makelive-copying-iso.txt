@@ -111,3 +111,42 @@ Now install grub,
 grub-install --uefi-secure-boot --no-floppy --removable --target=x86_64-efi /dev/sda
 if LINUXLIVE is drive /dev/sda
 
+######################################################################################
+# to make sure X windows starts manually with startx
+######################################################################################
+install xinit
+apt install xinit
+
+Also setup ~/.xinitrc
+which should have the line
+exec cinnamon-session
+or
+exec gnome-session
+
+.xinitrc must be executable
+chmod a+x ~/.xinitrc
+
+There should also be a file /etc/X11/xorg.conf.d/xorg.conf
+
+which looks like:
+
+Section "Device"
+    Identifier "NvidiaCard0"
+    Driver "nvidia"  # or nouveau for the generic driver
+EndSection
+
+Section "Monitor"
+    Identifier "Monitor0"
+EndSection
+
+Section "Screen"
+    Identifier "Screen0"
+    Device "NvidiaCard0"
+    Monitor "Monitor0"
+    DefaultDepth 24
+    SubSection "Display"
+        Depth 24
+        Modes "2560x1440"
+    EndSubSection
+EndSection
+
