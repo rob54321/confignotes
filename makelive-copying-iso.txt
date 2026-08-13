@@ -1,5 +1,8 @@
 How to make a live image by by copying the ubuntu***.iso image to a usb flash drive.
 
+##########################################################
+########################## 1 #############################
+##########################################################
 partition the flash drive with makelive.pl -D 12
 so it has the following partitions 
       1 . EFI/vfat for linux iso image and macrium reflect. Name is LINUXLIVE
@@ -7,10 +10,19 @@ so it has the following partitions
       3 writable ext4 partion for persistence 10G
       4 rest of disk ntfs for storage and backups.
 
+
+##########################################################
+########################## 2 #############################
+##########################################################
+
 mount the iso image on say /mnt/cdrom
 mount the EFI partition LINUXLIVE on /mnt/LINUXLIVE.
 
 cp -dR /mnt/cdrom /root/
+
+##########################################################
+########################## 3 #############################
+##########################################################
 
 change mode of directories and files to writable
 cd /root/cdrom
@@ -21,6 +33,11 @@ find . -type d -exec chmod 755 {} \;
 # Note: copy macrium reflect files and media creation tool files BEFORE coping the iso image files to /mnt/LINUXLIVE.
 # The iso image file EFI/boot/bootx64.efi must NOT be overwritten by the one from macrium reflect
 ###################################################
+
+
+##########################################################
+########################## 4 #############################
+##########################################################
 
 ####################################################
 # edit /root/cdrom/boot/grub/grub.cfg to 
@@ -93,6 +110,10 @@ fi
 # end of grub.cfg
 ####################################################
 
+##########################################################
+########################## 5 #############################
+##########################################################
+
 Copy files for macrium reflect and media creation tool to the disk with
 makelive.pl -M -T
 
@@ -101,16 +122,31 @@ makelive.pl -M -T
 # The iso image file EFI/boot/bootx64.efi must NOT be overwritten by the one from macrium reflect
 ###################################################
 
+
+##########################################################
+########################## 6 #############################
+##########################################################
+
 mount /mnt/LINUXLIVE
 cd /root/cdrom
 cp -dR .disk * /mnt/LINUXLIVE/
 umount /mnt/LINUXLIVE
 umount /mnt/cdrom
 
+##########################################################
+########################## 7 #############################
+##########################################################
+
 Now install grub, 
 grub-install --uefi-secure-boot --no-floppy --removable --target=x86_64-efi /dev/sda
 if LINUXLIVE is drive /dev/sda
 
+##########################################################
+# notice: apt-utils must be installed before initialise-linux is installed.
+# since apt-ftparchive is needed when signing the repository.
+# Also xinit must be installed and the correct ~/.xinitrc executable
+# must be present, as indicated below.
+# xorg.conf is OPTIONAL
 ######################################################################################
 # to make sure X windows starts manually with startx
 ######################################################################################
@@ -126,7 +162,9 @@ exec gnome-session
 .xinitrc must be executable
 chmod a+x ~/.xinitrc
 
-There should also be a file /etc/X11/xorg.conf.d/xorg.conf
+
+OPTIONAL: There should also be a file /etc/X11/xorg.conf.d/xorg.conf
+it works without this file. ~/.xinitrc must exist
 
 which looks like:
 
