@@ -1,0 +1,21 @@
+How to pass parameters from bash to inline perl and back to bash.
+
+#!/bin/bash
+get () {
+	ANSWER=$(perl -e 'my $nam = shift; print "hello $nam";' "$1")
+	echo "${ANSWER}";
+}
+
+LIST=`get "Robert"`
+echo "list: ${LIST}"
+
+#!/bin/bash
+get () {
+	ANSWER=$(perl -e 'my $nam = shift;
+			  my $sur = shift;
+	                  print "hello $nam $sur";' "$1" "$2")
+	echo "${ANSWER}";
+}
+
+LIST=`get "Robert Key"`
+echo "list: ${LIST}"
