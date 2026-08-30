@@ -19,3 +19,18 @@ get () {
 
 LIST=`get "Robert Key"`
 echo "list: ${LIST}"
+
+Script to use verbose for mounting a device
+${VER:+"-v"} does not work as -v gets interpreted as perl -v
+It seems VARIABLE=$(perl must be used
+#!/bin/bash
+VER="true"
+ANSWER=$(perl -e 'my $ver = shift;
+         if ($ver eq "true") {
+#         	print "ver = true\n";
+		system("mount -v /mnt/ad64");
+         } else {
+#         	print "ver not set\n";
+		system("mount /mnt/ad64");
+         }' "${VER}" )
+echo "${ANSWER}"
