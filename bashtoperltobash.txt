@@ -57,6 +57,8 @@ perlsub() {
 					  # do something
 					  $result = $param1 . $param2;
 					  # return value to bash
+					  # this last print statement sets the value of RESULT
+					  # RESULT is a global variable in BASH.
 					  print "$result";' "$1" "$2")
 	# echo "end of perlsub"
 
