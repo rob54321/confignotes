@@ -34,3 +34,46 @@ ANSWER=$(perl -e 'my $ver = shift;
 		system("mount /mnt/ad64");
          }' "${VER}" )
 echo "${ANSWER}"
+
+
+########################################################
+# one more exaple:
+# 2 parameters passed to perl and a status (numeric) returned from the bash sub
+# containing the perl
+#######################################################
+
+#!/bin/bash
+
+# calling a perl sub from bash
+# parameters passed 1 and 2 strings
+# return status and a string
+perlsub() {
+	# silly perl sub to called from bash
+	RESULT=$(perl -e 'use strict;
+					  use warnings;
+					  my $param1 = shift;
+					  my $param2 = shift;
+					  my $result;
+					  # do something
+					  $result = $param1 . $param2;
+					  # return value to bash
+					  print "$result";' "$1" "$2")
+	# echo "end of perlsub"
+
+	# return status
+	if test "${1}" = "hello"; then
+		# this return status could mean success
+		return 0;
+	else
+		# this return status could mean failure
+		return 1;
+	fi
+
+}
+
+# call perlsub
+perlsub "hel" "hello"
+rc="$?"
+
+echo "status = ${rc}"
+echo "return string ${RESULT}"
