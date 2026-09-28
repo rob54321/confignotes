@@ -79,3 +79,50 @@ rc="$?"
 
 echo "status = ${rc}"
 echo "return string ${RESULT}"
+
+
+#################################################################################
+# note : if sub called by ANSWER=$(sub "$1" "$2" ....)
+# then sub must echo the result before returning
+# if sub is called as sub "$1" "$2" ...
+# then echo of result in sub not necessary
+# in both cases $? contains the integer status if return is used in sub.
+# following example uses both methods.
+################################################################################
+
+#!/bin/bash
+
+# calling a perl sub from bash
+# parameters passed 1 and 2 strings
+# return status and a string
+perlsub() {
+	# silly perl sub to called from bash
+	RESULT=$(perl -e 'use strict;
+					  use warnings;
+					  my $param1 = shift;
+					  my $param2 = shift;
+					  my $result;
+					  # do something
+					  $result = $param1 . $param2;
+					  # return value to bash
+					  print "$result";' "$1" "$2")
+	# echo "end of perlsub"
+	echo "${RESULT}"
+	# return status
+	if test "${1}" = "hello"; then
+		return 0;
+	else
+		return 1;
+	fi
+
+}
+
+# call perlsub
+perlsub "hello" "two"
+rc="$?"
+
+echo "status = ${rc}"
+echo "return string ${RESULT}"
+
+ANSWER=$(perlsub "hello" "two")
+echo "rc = $?; answer = ${ANSWER}"
