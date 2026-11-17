@@ -1,0 +1,20 @@
+Kate custom theme
+
+Created custom theme "Perl Dark" based on Vim Dark.
+
+Problem:
+Code folding markers were not visible on a black background.
+
+Solution:
+Edit Perl Dark.theme directly.
+~/.local/share/org.kde.syntax-highlighting/'Perl Dark.theme' 
+
+Change:
+
+    "CodeFolding" : "#ffffff"
+
+This sets code folding markers to white.
+
+Observation:
+Several editor colors can be customized in the .theme file that are not exposed by
+Kate's Theme Editor GUI.
