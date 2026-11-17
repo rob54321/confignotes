@@ -7,7 +7,7 @@ Code folding markers were not visible on a black background.
 
 Solution:
 Edit Perl Dark.theme directly.
-~/.local/share/org.kde.syntax-highlighting/'Perl Dark.theme' 
+~/.local/share/org.kde.syntax-highlighting/themes/'Perl Dark.theme' 
 
 Change:
 
